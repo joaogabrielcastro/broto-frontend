@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const CadastroMotorista = () => {
   const [form, setForm] = useState({
     nome: '',
@@ -21,7 +23,7 @@ const CadastroMotorista = () => {
     setErro('');     // Limpa erros anteriores
 
     try {
-      await axios.post('http://localhost:3001/motoristas', form);
+      await axios.post(`${API_BASE_URL}/motoristas`, form);
       setMensagem('Motorista cadastrado com sucesso!');
       setForm({ nome: '', cnh: '', telefone: '' }); // Limpa o formulário
     } catch (error) {

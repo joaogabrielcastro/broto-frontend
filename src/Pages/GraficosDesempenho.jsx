@@ -12,6 +12,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const GraficosDesempenho = () => {
   const [viagens, setViagens] = useState([]);
   const [loading, setLoading] = useState(true); // Added loading state
@@ -20,7 +22,7 @@ const GraficosDesempenho = () => {
   useEffect(() => {
     setLoading(true);
     setError(""); // Clear previous errors
-    axios.get("http://localhost:3001/viagens/finalizadas")
+    axios.get(`${API_BASE_URL}/viagens/finalizadas`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {

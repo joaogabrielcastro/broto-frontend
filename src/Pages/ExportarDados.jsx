@@ -5,6 +5,8 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable"; // Make sure jspdf-autotable is installed
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const ExportarDados = () => {
   const [viagens, setViagens] = useState([]);
   const [loading, setLoading] = useState(true); // Added loading state
@@ -13,7 +15,7 @@ const ExportarDados = () => {
   useEffect(() => {
     setLoading(true);
     setError(""); // Clear previous errors
-    axios.get("http://localhost:3001/viagens/finalizadas")
+    axios.get(`${API_BASE_URL}/viagens/finalizadas`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {

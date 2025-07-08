@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const ConsultaPelaPlaca = () => {
   const [placa, setPlaca] = useState("");
   const [viagens, setViagens] = useState([]);
@@ -21,8 +23,8 @@ const ConsultaPelaPlaca = () => {
     }
 
     try {
-      const res = await axios.get(`http://localhost:3001/viagens/${placa}`);
-      
+      const res = await axios.get(`${API_BASE_URL}/viagens/${placa}`);
+
       // A API retorna { placa, viagens: [] } se não encontrar o caminhão,
       // ou { placa, viagens: [...] } se encontrar.
       if (res.data && res.data.viagens && res.data.viagens.length > 0) {

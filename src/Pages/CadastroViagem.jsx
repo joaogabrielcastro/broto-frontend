@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const CadastroViagem = () => {
   const [placas, setPlacas] = useState([]);
   const [motoristas, setMotoristas] = useState([]); // Novo estado para motoristas
@@ -21,7 +23,7 @@ const CadastroViagem = () => {
 
   useEffect(() => {
     // Carregar placas de caminhões
-    axios.get("http://localhost:3001/caminhoes")
+    axios.get(`${API_BASE_URL}/caminhoes`)
       .then(res => setPlacas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar placas de caminhões:", error);
@@ -30,7 +32,7 @@ const CadastroViagem = () => {
       });
 
     // Carregar motoristas
-    axios.get("http://localhost:3001/motoristas") // Nova requisição para motoristas
+    axios.get(`${API_BASE_URL}/motoristas`) // Nova requisição para motoristas
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
@@ -51,7 +53,7 @@ const CadastroViagem = () => {
 
     try {
       // Enviar todos os dados do formulário, incluindo motorista_id, origem e destino
-      await axios.post("http://localhost:3001/viagens", form);
+      await axios.post(`${API_BASE_URL}/viagens`, form);
       setMensagem("Viagem cadastrada com sucesso!");
       setForm({
         placa: "",

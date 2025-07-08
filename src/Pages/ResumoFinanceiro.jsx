@@ -6,6 +6,8 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Lege
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const ResumoFinanceiro = () => {
   const [viagens, setViagens] = useState([]);
   const [loading, setLoading] = useState(true); // Added loading state
@@ -16,7 +18,7 @@ const ResumoFinanceiro = () => {
     setError(""); // Clear previous errors
     // CORREÇÃO AQUI: Alterado o endpoint de "/viagens" para "/viagens/finalizadas"
     // Isso garante que o componente chame a rota correta no backend
-    axios.get("http://localhost:3001/viagens/finalizadas")
+    axios.get(`${API_BASE_URL}/viagens/finalizadas`)
       .then(res => {
         // Filtra dados para garantir que temos o mínimo necessário antes de usar
         const filteredViagens = res.data.filter(v => v.lucro_total !== null && v.lucro_total !== undefined);

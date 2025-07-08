@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs"; // Import dayjs for date formatting
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const EditarViagem = () => {
   const [viagens, setViagens] = useState([]);
   const [motoristas, setMotoristas] = useState([]); // Novo estado para motoristas
@@ -23,7 +25,7 @@ const EditarViagem = () => {
     setLoading(true); // Inicia o carregamento
     setMensagem("");  // Limpa mensagens anteriores
     setErro("");      // Limpa erros anteriores
-    axios.get("http://localhost:3001/viagens/ativas")
+    axios.get(`${API_BASE_URL}/viagens/ativas`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {
@@ -42,7 +44,7 @@ const EditarViagem = () => {
 
   // Função para carregar a lista de motoristas do backend
   const carregarMotoristas = () => {
-    axios.get("http://localhost:3001/motoristas")
+    axios.get(`${API_BASE_URL}/motoristas`)
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
@@ -75,7 +77,7 @@ const EditarViagem = () => {
     setErro("");          // Limpa erros
 
     try {
-      await axios.put(`http://localhost:3001/viagens/${edicao.id}`, edicao);
+      await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null); // Limpa o estado de edição
       carregarViagens(); // Recarrega a lista de viagens
@@ -97,7 +99,7 @@ const EditarViagem = () => {
     setErro("");                                   // Limpa erros
 
     try {
-      await axios.patch(`http://localhost:3001/viagens/${modalFinalizar.id}/finalizar`);
+      await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`);
       setMensagem("Viagem finalizada com sucesso!");
       carregarViagens(); // Recarrega a lista para remover a viagem finalizada
     } catch (error) {

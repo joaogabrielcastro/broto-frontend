@@ -5,6 +5,8 @@ import "dayjs/locale/pt-br";
 
 dayjs.locale("pt-br");
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const SituacaoAtual = () => {
   const [viagens, setViagens] = useState([]);
   const [mensagem, setMensagem] = useState(""); // For success messages
@@ -20,7 +22,7 @@ const SituacaoAtual = () => {
     setLoading(true);
     setMensagem(""); // Clear previous messages
     setErro("");     // Clear previous errors
-    axios.get("http://localhost:3001/situacao")
+    axios.get(`${API_BASE_URL}/situacao`)
       .then(res => {
         // Filtra dados para garantir que temos o mínimo necessário antes de usar
         const rawData = Array.isArray(res.data) ? res.data : []; 
@@ -53,7 +55,7 @@ const SituacaoAtual = () => {
 
     try {
       // Primeiro, busca a viagem em andamento para obter o ID
-      const res = await axios.get(`http://localhost:3001/viagens/${placa}`);
+      const res = await axios.get(`${API_BASE_URL}/viagens/${placa}`);
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
       if (!ultima || !ultima.id) { // Ensure ultima and its ID exist

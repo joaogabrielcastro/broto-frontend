@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+
 const DashboardProdutividade = () => {
   const [dados, setDados] = useState([]);
   const [erro, setErro] = useState(""); // Adicionado estado para erros
@@ -11,7 +13,7 @@ const DashboardProdutividade = () => {
     setErro(""); // Clear any previous errors on mount
 
     axios
-      .get("http://localhost:3001/produtividade")
+      .get(`${API_BASE_URL}/produtividade`)
       .then((res) => {
         setDados(res.data);
         if (res.data.length === 0) {
