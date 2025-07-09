@@ -23,7 +23,8 @@ const ConsultaPelaPlaca = () => {
     }
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/viagens/${placa}`);
+      // CORREÇÃO AQUI: Rota atualizada para /viagens-por-placa/:placa
+      const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       
       if (res.data && res.data.viagens && res.data.viagens.length > 0) {
         setViagens(res.data.viagens);

@@ -23,7 +23,8 @@ const EditarViagem = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    axios.get(`${API_BASE_URL}/viagens/ativas`)
+    // CORREÇÃO AQUI: Rota atualizada para /viagens-ativas-lista
+    axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {

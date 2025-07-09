@@ -3,19 +3,20 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; // Make sure jspdf-autotable is installed
+import autoTable from "jspdf-autotable";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const ExportarDados = () => {
   const [viagens, setViagens] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading state
-  const [error, setError] = useState("");     // Added error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError(""); // Clear previous errors
-    axios.get(`${API_BASE_URL}/viagens/finalizadas`)
+    setError("");
+    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
+    axios.get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {
@@ -25,6 +26,7 @@ const ExportarDados = () => {
       .catch((err) => {
         console.error("Erro ao carregar viagens finalizadas:", err);
         setError("Erro ao carregar dados. Tente novamente mais tarde.");
+        setViagens([]);
       })
       .finally(() => {
         setLoading(false);
@@ -36,13 +38,13 @@ const ExportarDados = () => {
       setError("Não há dados de viagens para exportar para Excel.");
       return;
     }
-    setError(""); // Clear error if export proceeds
+    setError("");
 
     try {
       const ws = XLSX.utils.json_to_sheet(viagens.map(v => ({
         Placa: v.placa,
         "Data Fim": v.fim,
-        "Lucro Total (R$)": parseFloat(v.lucro_total).toFixed(2), // Ensure number format
+        "Lucro Total (R$)": parseFloat(v.lucro_total).toFixed(2),
       })));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Viagens Finalizadas");
@@ -50,7 +52,7 @@ const ExportarDados = () => {
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
       saveAs(blob, "viagens_finalizadas.xlsx");
-      alert("Arquivo Excel exportado com sucesso!"); // Using alert for success, as it's a file download
+      alert("Arquivo Excel exportado com sucesso!");
     } catch (e) {
       console.error("Erro ao exportar para Excel:", e);
       setError("Erro ao exportar para Excel. Verifique o console.");
@@ -62,12 +64,12 @@ const ExportarDados = () => {
       setError("Não há dados de viagens para exportar para PDF.");
       return;
     }
-    setError(""); // Clear error if export proceeds
+    setError("");
 
     try {
       const doc = new jsPDF();
-      doc.setFont("helvetica", "bold"); // Set font and bold for title
-      doc.setTextColor(255, 70, 70); // Red title color
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 70, 70);
       doc.setFontSize(18);
       doc.text("Relatório de Viagens Finalizadas", 14, 20);
 
@@ -80,20 +82,20 @@ const ExportarDados = () => {
       autoTable(doc, {
         head: [["Placa", "Data Fim", "Lucro Total"]],
         body: dadosTabela,
-        startY: 30, // Adjust startY to leave space for the title
+        startY: 30,
         headStyles: {
-          fillColor: [153, 0, 0], // Dark red for table header
-          textColor: [255, 255, 255], // White text for header
+          fillColor: [153, 0, 0],
+          textColor: [255, 255, 255],
           fontStyle: 'bold',
         },
-        alternateRowStyles: { fillColor: [34, 34, 34] }, // Dark background for alternating rows
-        bodyStyles: { textColor: [200, 200, 200], fillColor: [42, 42, 42] }, // Light gray text, slightly darker background for body
+        alternateRowStyles: { fillColor: [34, 34, 34] },
+        bodyStyles: { textColor: [200, 200, 200], fillColor: [42, 42, 42] },
         styles: {
             font: "helvetica",
             fontSize: 10,
             cellPadding: 3,
         },
-        columnStyles: { // Aligning columns
+        columnStyles: {
           0: { cellWidth: 'auto' },
           1: { cellWidth: 'auto' },
           2: { cellWidth: 'auto' },
@@ -101,7 +103,7 @@ const ExportarDados = () => {
       });
 
       doc.save("relatorio_viagens_finalizadas.pdf");
-      alert("Arquivo PDF exportado com sucesso!"); // Using alert for success, as it's a file download
+      alert("Arquivo PDF exportado com sucesso!");
     } catch (e) {
       console.error("Erro ao exportar para PDF:", e);
       setError("Erro ao exportar para PDF. Verifique o console.");
@@ -113,7 +115,7 @@ const ExportarDados = () => {
       <div className="max-w-4xl w-full p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700">
         <h2 className="text-3xl font-bold mb-8 text-red-500 text-center">Exportar Viagens Finalizadas</h2>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center"> {/* Centered buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
           <button
             onClick={exportarExcel}
             className="flex items-center justify-center bg-red-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"

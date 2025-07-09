@@ -18,18 +18,16 @@ const API_BASE_URL =
 
 const ResumoFinanceiro = () => {
   const [viagens, setViagens] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading state
-  const [error, setError] = useState(""); // Added error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError(""); // Clear previous errors
-    // CORREÇÃO AQUI: Alterado o endpoint de "/viagens" para "/viagens/finalizadas"
-    // Isso garante que o componente chame a rota correta no backend
+    setError("");
+    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
     axios
-      .get(`${API_BASE_URL}/viagens/finalizadas`)
+      .get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then((res) => {
-        // Filtra dados para garantir que temos o mínimo necessário antes de usar
         const filteredViagens = res.data.filter(
           (v) => v.lucro_total !== null && v.lucro_total !== undefined
         );
@@ -50,39 +48,39 @@ const ResumoFinanceiro = () => {
   }, []);
 
   const data = {
-    labels: viagens.map((v) => `${v.placa} - ${v.fim || "N/A"}`), // Added N/A for cases where fim might be missing
+    labels: viagens.map((v) => `${v.placa} - ${v.fim || "N/A"}`),
     datasets: [
       {
         label: "Lucro Total (R$)",
-        data: viagens.map((v) => Number(v.lucro_total)), // Ensure data is numerical
+        data: viagens.map((v) => Number(v.lucro_total)),
         backgroundColor: viagens.map((v) =>
           Number(v.lucro_total) >= 30000 ? "#22c55e" : "#ef4444"
-        ), // Tailwind green-500 or red-500
+        ),
         borderColor: viagens.map((v) =>
           Number(v.lucro_total) >= 30000 ? "#16a34a" : "#dc2626"
-        ), // Darker green/red for border
+        ),
         borderWidth: 1,
-        borderRadius: 5, // Rounded corners for bars
+        borderRadius: 5,
       },
     ],
   };
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false, // Allows the chart to fill the container height
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true, // Display legend to show what the bars represent
+        display: true,
         position: "top",
         labels: {
-          color: "#e0e0e0", // Light gray color for legend text
+          color: "#e0e0e0",
         },
       },
       tooltip: {
-        backgroundColor: "#333", // Dark tooltip background
-        titleColor: "#e0e0e0", // Light gray title color
-        bodyColor: "#e0e0e0", // Light gray body color
-        borderColor: "#555", // Border for tooltip
+        backgroundColor: "#333",
+        titleColor: "#e0e0e0",
+        bodyColor: "#e0e0e0",
+        borderColor: "#555",
         borderWidth: 1,
         callbacks: {
           label: (ctx) =>
@@ -96,32 +94,32 @@ const ResumoFinanceiro = () => {
     scales: {
       x: {
         ticks: {
-          color: "#e0e0e0", // Light gray for X-axis labels
+          color: "#e0e0e0",
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)", // Subtle white grid lines
-          borderColor: "#e0e0e0", // Light gray border
+          color: "rgba(255, 255, 255, 0.1)",
+          borderColor: "#e0e0e0",
         },
         title: {
           display: true,
           text: "Viagens (Placa - Data Fim)",
-          color: "#e0e0e0", // Light gray title color
+          color: "#e0e0e0",
         },
       },
       y: {
         beginAtZero: true,
         ticks: {
-          color: "#e0e0e0", // Light gray for Y-axis labels
-          callback: (value) => `R$ ${value.toLocaleString("pt-BR")}`, // Format Y-axis labels as currency
+          color: "#e0e0e0",
+          callback: (value) => `R$ ${value.toLocaleString("pt-BR")}`,
         },
         grid: {
-          color: "rgba(255, 255, 255, 0.1)", // Subtle white grid lines
-          borderColor: "#e0e0e0", // Light gray border
+          color: "rgba(255, 255, 255, 0.1)",
+          borderColor: "#e0e0e0",
         },
         title: {
           display: true,
           text: "Lucro (R$)",
-          color: "#e0e0e0", // Light gray title color
+          color: "#e0e0e0",
         },
       },
     },

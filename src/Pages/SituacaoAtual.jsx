@@ -9,10 +9,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 
 const SituacaoAtual = () => {
   const [viagens, setViagens] = useState([]);
-  const [mensagem, setMensagem] = useState(""); // For success messages
-  const [erro, setErro] = useState("");         // For error messages
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
   const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, placa: null });
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     carregarViagens();
@@ -20,11 +20,11 @@ const SituacaoAtual = () => {
 
   const carregarViagens = () => {
     setLoading(true);
-    setMensagem(""); // Clear previous messages
-    setErro("");     // Clear previous errors
-    axios.get(`${API_BASE_URL}/situacao`)
+    setMensagem("");
+    setErro("");
+    // CORREÇÃO AQUI: Rota atualizada para /situacao-atual-caminhoes
+    axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
-        // Filtra dados para garantir que temos o mínimo necessário antes de usar
         const rawData = Array.isArray(res.data) ? res.data : []; 
         const validViagens = rawData.filter(v => v && v.placa && v.inicio && v.status);
         setViagens(validViagens);
@@ -36,7 +36,7 @@ const SituacaoAtual = () => {
       .catch(err => {
         console.error("Erro ao carregar situação atual:", err);
         setErro("Erro ao carregar a situação atual. Tente novamente mais tarde.");
-        setViagens([]); // Clear data on error
+        setViagens([]);
       })
       .finally(() => {
         setLoading(false);
@@ -49,25 +49,23 @@ const SituacaoAtual = () => {
 
   const confirmarFinalizarViagem = async () => {
     const placa = modalConfirmacao.placa;
-    setModalConfirmacao({ aberto: false, placa: null }); // Close modal immediately
+    setModalConfirmacao({ aberto: false, placa: null });
     setMensagem("");
     setErro("");
 
     try {
-      // Primeiro, busca a viagem em andamento para obter o ID
-      const res = await axios.get(`${API_BASE_URL}/viagens/${placa}`);
+      const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`); // Usar a rota correta para buscar por placa
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
-      if (!ultima || !ultima.id) { // Ensure ultima and its ID exist
+      if (!ultima || !ultima.id) {
         setErro(`Não foi encontrada uma viagem "Em andamento" para a placa ${placa}.`);
-        carregarViagens(); // Reload in case status changed
+        carregarViagens();
         return;
       }
 
-      // Em seguida, finaliza a viagem usando o ID
       await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`);
       setMensagem(`Viagem do caminhão ${placa} finalizada com sucesso!`);
-      carregarViagens(); // Recarrega a lista para remover a viagem finalizada
+      carregarViagens();
     } catch (err) {
       console.error("Erro ao finalizar viagem:", err);
       setErro(err.response?.data?.erro || `Erro ao finalizar a viagem do caminhão ${placa}. Tente novamente.`);
@@ -106,8 +104,8 @@ const SituacaoAtual = () => {
                 >
                   <div className="mb-4 md:mb-0">
                     <p className="text-2xl font-bold text-red-400 mb-2">🚚 Placa: {v.placa || 'N/A'}</p>
-                    <p className="mb-1"><span className="font-semibold text-gray-300">Motorista:</span> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p> {/* NOVO CAMPO */}
-                    <p className="mb-1"><span className="font-semibold text-gray-300">Rota:</span> <span className="text-gray-300">{v.origem || 'N/A'}</span> <span className="text-red-400 font-bold">➔</span> <span className="text-gray-300">{v.destino || 'N/A'}</span></p> {/* NOVOS CAMPOS */}
+                    <p className="mb-1"><span className="font-semibold text-gray-300">Motorista:</span> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p>
+                    <p className="mb-1"><span className="font-semibold text-gray-300">Rota:</span> <span className="text-gray-300">{v.origem || 'N/A'}</span> <span className="text-red-400 font-bold">➔</span> <span className="text-gray-300">{v.destino || 'N/A'}</span></p>
                     <p className="mb-1"><span className="font-semibold text-gray-300">Início:</span> {inicioFormatado}</p>
                     <p className="mb-1"><span className="font-semibold text-gray-300">Dias na estrada:</span> <span className="font-bold text-amber-400">{dias} dia(s)</span></p>
                     <p>

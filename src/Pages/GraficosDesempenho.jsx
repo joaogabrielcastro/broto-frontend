@@ -16,13 +16,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 
 const GraficosDesempenho = () => {
   const [viagens, setViagens] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading state
-  const [error, setError] = useState("");     // Added error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError(""); // Clear previous errors
-    axios.get(`${API_BASE_URL}/viagens/finalizadas`)
+    setError("");
+    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
+    axios.get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then(res => {
         setViagens(res.data);
         if (res.data.length === 0) {
@@ -42,8 +43,8 @@ const GraficosDesempenho = () => {
   const viagensPorPlaca = viagens.reduce((acc, viagem) => {
     if (!acc[viagem.placa]) acc[viagem.placa] = [];
     acc[viagem.placa].push({
-      data: viagem.fim, // Use a data de fim para o eixo X
-      lucro: Number(viagem.lucro_total), // Garante que lucro é um número
+      data: viagem.fim,
+      lucro: Number(viagem.lucro_total),
     });
     return acc;
   }, {});
@@ -60,36 +61,29 @@ const GraficosDesempenho = () => {
             {error}
           </p>
         ) : Object.keys(viagensPorPlaca).length > 0 ? (
-          <div className="space-y-10"> {/* More space between charts */}
+          <div className="space-y-10">
             {Object.entries(viagensPorPlaca).map(([placa, dados]) => (
-              <div key={placa} className="bg-neutral-700 rounded-lg p-6 shadow-xl border border-red-600"> {/* Darker background for each chart card */}
+              <div key={placa} className="bg-neutral-700 rounded-lg p-6 shadow-xl border border-red-600">
                 <h3 className="text-2xl font-bold mb-4 text-gray-100 text-center">Placa: <span className="text-red-400">{placa}</span></h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={dados} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#555" /> {/* Lighter gray grid */}
-                    <XAxis dataKey="data" stroke="#ccc" tick={{ fill: '#ccc' }} /> {/* Light gray for axis */}
-                    <YAxis stroke="#ccc" tick={{ fill: '#ccc' }} /> {/* Light gray for axis */}
+                    <CartesianGrid strokeDasharray="3 3" stroke="#555" />
+                    <XAxis dataKey="data" stroke="#ccc" tick={{ fill: '#ccc' }} />
+                    <YAxis stroke="#ccc" tick={{ fill: '#ccc' }} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: '#eee' }} // Dark tooltip style
+                      contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: '#eee' }}
                       labelStyle={{ color: '#ccc' }}
                       itemStyle={{ color: '#eee' }}
                     />
-                    <Legend wrapperStyle={{ color: '#eee' }} /> {/* Light gray legend text */}
-                    <ReferenceLine y={30000} stroke="#ff3333" strokeDasharray="3 3" label={{ value: "Meta Mínima R$30.000", position: "insideTopRight", fill: "#ff3333" }} /> {/* Red reference line */}
+                    <Legend wrapperStyle={{ color: '#eee' }} />
+                    <ReferenceLine y={30000} stroke="#ff3333" strokeDasharray="3 3" label={{ value: "Meta Mínima R$30.000", position: "insideTopRight", fill: "#ff3333" }} />
                     <Line
                       type="monotone"
                       dataKey="lucro"
-                      // stroke="#8884d8" // Original blue-ish, but let's make it a contrasting color, or keep for clarity.
-                      // Using a light blue/purple that stands out on dark, or a specific shade of red/orange
-                      // For consistency, let's use a contrasting accent that works with red/black.
-                      // A blue is often good for line charts to distinguish.
-                      // stroke="#6366f1" // Tailwind indigo-500
-                      // stroke="#3b82f6" // Tailwind blue-500
-                      // Alternatively, a light orange/gold:
-                      stroke="#fbbf24" // Tailwind amber-400 for contrast
+                      stroke="#fbbf24"
                       name="Lucro (R$)"
                       activeDot={{ r: 8 }}
-                      dot={{ r: 4, fill: '#fbbf24' }} // Match dot color
+                      dot={{ r: 4, fill: '#fbbf24' }}
                     />
                   </LineChart>
                 </ResponsiveContainer>

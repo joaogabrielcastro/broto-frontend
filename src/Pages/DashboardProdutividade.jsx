@@ -12,7 +12,8 @@ const DashboardProdutividade = () => {
     setLoading(true);
     setErro("");
 
-    axios.get(`${API_BASE_URL}/produtividade`)
+    // CORREÇÃO AQUI: Rota atualizada para /relatorio-produtividade
+    axios.get(`${API_BASE_URL}/relatorio-produtividade`)
       .then((res) => {
         setDados(res.data);
         if (res.data.length === 0) {
