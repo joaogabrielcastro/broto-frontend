@@ -65,7 +65,7 @@ const SituacaoAtual = () => {
       }
 
       // Em seguida, finaliza a viagem usando o ID
-      await axios.patch(`http://localhost:3001/viagens/${ultima.id}/finalizar`);
+      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`);
       setMensagem(`Viagem do caminhão ${placa} finalizada com sucesso!`);
       carregarViagens(); // Recarrega a lista para remover a viagem finalizada
     } catch (err) {
