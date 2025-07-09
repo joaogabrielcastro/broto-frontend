@@ -4,10 +4,12 @@
     @tailwind components;
     @tailwind utilities;
 
-        /* Opcional: Importe a fonte Inter do Google Fonts */
+    /* A regra @import DEVE vir logo após as diretivas @tailwind, sem outras regras CSS */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
     body {
       font-family: 'Inter', sans-serif;
+      /* Se você tem um fundo na div externa do componente (bg-neutral-900),
+         evite definir um fundo aqui para não haver conflito visual. */
     }
     
