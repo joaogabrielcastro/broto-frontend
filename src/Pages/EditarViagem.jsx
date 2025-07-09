@@ -1,30 +1,28 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs"; // Import dayjs for date formatting
+import dayjs from "dayjs";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const EditarViagem = () => {
   const [viagens, setViagens] = useState([]);
-  const [motoristas, setMotoristas] = useState([]); // Novo estado para motoristas
-  const [edicao, setEdicao] = useState(null); // Estado para a viagem que está sendo editada
-  const [modalSalvar, setModalSalvar] = useState(false); // Estado para o modal de confirmação de salvar
-  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null }); // Estado para o modal de confirmação de finalizar
-  const [mensagem, setMensagem] = useState(""); // Para mensagens de sucesso
-  const [erro, setErro] = useState("");         // Para mensagens de erro
-  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
+  const [motoristas, setMotoristas] = useState([]);
+  const [edicao, setEdicao] = useState(null);
+  const [modalSalvar, setModalSalvar] = useState(false);
+  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // useEffect para carregar viagens e motoristas ao montar o componente
   useEffect(() => {
     carregarViagens();
     carregarMotoristas();
   }, []);
 
-  // Função para carregar as viagens ativas do backend
   const carregarViagens = () => {
-    setLoading(true); // Inicia o carregamento
-    setMensagem("");  // Limpa mensagens anteriores
-    setErro("");      // Limpa erros anteriores
+    setLoading(true);
+    setMensagem("");
+    setErro("");
     axios.get(`${API_BASE_URL}/viagens/ativas`)
       .then(res => {
         setViagens(res.data);
@@ -35,28 +33,24 @@ const EditarViagem = () => {
       .catch((error) => {
         console.error("Erro ao carregar viagens ativas:", error);
         setErro("Erro ao carregar viagens ativas. Tente novamente mais tarde.");
-        setViagens([]); // Limpa dados em caso de erro
+        setViagens([]);
       })
       .finally(() => {
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false);
       });
   };
 
-  // Função para carregar a lista de motoristas do backend
   const carregarMotoristas = () => {
     axios.get(`${API_BASE_URL}/motoristas`)
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
-        setErro(prev => prev ? prev + " Erro ao carregar motoristas." : "Erro ao carregar motoristas."); // Adiciona ao erro existente
-        setMotoristas([]); // Limpa motoristas em caso de erro
+        setErro(prev => prev ? prev + " Erro ao carregar motoristas." : "Erro ao carregar motoristas.");
+        setMotoristas([]);
       });
   };
 
-  // Lida com o clique no botão "Editar" de uma viagem
   const handleEditar = (viagemSelecionada) => {
-    // Formata as datas para o formato "YYYY-MM-DD" esperado pelo input type="date"
-    // Garante que motorista_id seja um número ou string vazia para o select
     setEdicao({
       ...viagemSelecionada,
       inicio: viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format('YYYY-MM-DD') : '',
@@ -65,43 +59,39 @@ const EditarViagem = () => {
     });
   };
 
-  // Abre o modal de confirmação para salvar edições
   const handleSalvar = () => {
     setModalSalvar(true);
   };
 
-  // Confirma e envia as alterações da viagem para o backend
   const confirmarSalvar = async () => {
-    setModalSalvar(false); // Fecha o modal imediatamente
-    setMensagem("");      // Limpa mensagens
-    setErro("");          // Limpa erros
+    setModalSalvar(false);
+    setMensagem("");
+    setErro("");
 
     try {
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
-      setEdicao(null); // Limpa o estado de edição
-      carregarViagens(); // Recarrega a lista de viagens
+      setEdicao(null);
+      carregarViagens();
     } catch (error) {
       console.error("Erro ao salvar alterações da viagem:", error);
       setErro(error.response?.data?.erro || "Erro ao salvar alterações. Tente novamente.");
     }
   };
 
-  // Abre o modal de confirmação para finalizar uma viagem
   const handleFinalizar = (idViagem) => {
     setModalFinalizar({ aberto: true, id: idViagem });
   };
 
-  // Confirma e envia a requisição para finalizar a viagem para o backend
   const confirmarFinalizar = async () => {
-    setModalFinalizar({ aberto: false, id: null }); // Fecha o modal imediatamente
-    setMensagem("");                               // Limpa mensagens
-    setErro("");                                   // Limpa erros
+    setModalFinalizar({ aberto: false, id: null });
+    setMensagem("");
+    setErro("");
 
     try {
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`);
       setMensagem("Viagem finalizada com sucesso!");
-      carregarViagens(); // Recarrega a lista para remover a viagem finalizada
+      carregarViagens();
     } catch (error) {
       console.error("Erro ao finalizar viagem:", error);
       setErro(error.response?.data?.erro || "Erro ao finalizar viagem. Tente novamente.");
@@ -132,8 +122,8 @@ const EditarViagem = () => {
               <div key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="mb-1"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
-                  <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p> {/* Exibe o nome do motorista */}
-                  <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p> {/* Exibe a rota */}
+                  <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
+                  <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio}</p>
                   <p><strong className="text-red-400">Status:</strong> {v.status}</p>
                 </div>
@@ -171,7 +161,7 @@ const EditarViagem = () => {
                 className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
                 value={edicao.placa}
                 onChange={e => setEdicao({ ...edicao, placa: e.target.value })}
-                disabled // Placa geralmente não deve ser editada
+                disabled
               />
             </div>
 

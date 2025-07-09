@@ -6,15 +6,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const ConsultaPelaPlaca = () => {
   const [placa, setPlaca] = useState("");
   const [viagens, setViagens] = useState([]);
-  const [mensagem, setMensagem] = useState(""); // For success messages
-  const [erro, setErro] = useState("");         // For error messages
-  const [loading, setLoading] = useState(false); // Loading state for search
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const buscarViagens = async () => {
-    setViagens([]);   // Clear previous results
-    setMensagem(""); // Clear messages
-    setErro("");     // Clear errors
-    setLoading(true); // Start loading
+    setViagens([]);
+    setMensagem("");
+    setErro("");
+    setLoading(true);
 
     if (!placa) {
       setErro("Por favor, digite uma placa para buscar.");
@@ -24,14 +24,12 @@ const ConsultaPelaPlaca = () => {
 
     try {
       const res = await axios.get(`${API_BASE_URL}/viagens/${placa}`);
-
-      // A API retorna { placa, viagens: [] } se não encontrar o caminhão,
-      // ou { placa, viagens: [...] } se encontrar.
+      
       if (res.data && res.data.viagens && res.data.viagens.length > 0) {
         setViagens(res.data.viagens);
         setMensagem(`Viagens encontradas para a placa: ${placa}`);
       } else {
-        setViagens([]); // Ensure no old data is shown
+        setViagens([]);
         setErro("Caminhão não encontrado ou não possui viagens cadastradas.");
       }
     } catch (error) {
@@ -43,16 +41,16 @@ const ConsultaPelaPlaca = () => {
       } else {
         setErro("Erro ao buscar viagens. Tente novamente mais tarde.");
       }
-      setViagens([]); // Clear any previous results on error
+      setViagens([]);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter"> {/* Full screen dark background, centered, Inter font */}
-      <div className="max-w-md w-full p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700"> {/* Darker card with red border, larger shadow */}
-        <h2 className="text-3xl font-bold mb-6 text-red-500 text-center">Consulta por Placa</h2> {/* Red title, bold, centered */}
+    <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter">
+      <div className="max-w-md w-full p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700">
+        <h2 className="text-3xl font-bold mb-6 text-red-500 text-center">Consulta por Placa</h2>
         
         <div className="mb-4">
           <label htmlFor="placa" className="block text-gray-200 text-sm font-semibold mb-2">
@@ -72,7 +70,7 @@ const ConsultaPelaPlaca = () => {
         <button
           onClick={buscarViagens}
           className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"
-          disabled={loading} // Disable button while loading
+          disabled={loading}
         >
           {loading ? 'Buscando...' : 'Buscar Viagens'}
         </button>
@@ -89,14 +87,14 @@ const ConsultaPelaPlaca = () => {
         )}
 
         {viagens.length > 0 && (
-          <div className="mt-8 space-y-4 max-h-96 overflow-y-auto pr-2"> {/* Added scroll for many trips */}
+          <div className="mt-8 space-y-4 max-h-96 overflow-y-auto pr-2">
             {viagens.map((v) => (
               <div
                 key={v.id}
-                className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100" // Darker card for each trip
+                className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100"
               >
-                <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> {v.motorista_nome || 'N/A'}</p> {/* NOVO CAMPO */}
-                <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p> {/* NOVOS CAMPOS */}
+                <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> {v.motorista_nome || 'N/A'}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Início:</span></strong> {v.inicio}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Fim:</span></strong> {v.fim}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Frete:</span></strong> R$ {v.frete}</p>
@@ -107,7 +105,7 @@ const ConsultaPelaPlaca = () => {
           </div>
         )}
 
-        {!loading && viagens.length === 0 && !erro && placa && ( // Show message if no trips found after a search and not loading
+        {!loading && viagens.length === 0 && !erro && placa && (
           <p className="mt-6 text-center text-gray-400">Nenhuma viagem encontrada para a placa digitada.</p>
         )}
       </div>
