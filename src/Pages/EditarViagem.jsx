@@ -10,10 +10,10 @@ const EditarViagem = () => {
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
-  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // Estado para o modal de exclusão
-  const [mensagem, setMensagem] = useState(""); // Para mensagens de sucesso
-  const [erro, setErro] = useState("");         // Para mensagens de erro
-  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
+  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // NOVO ESTADO PARA MODAL DE EXCLUSÃO
+  const [mensagem, setMensagem] = useState(""); // For success messages
+  const [erro, setErro] = useState("");         // For error messages
+  const [loading, setLoading] = useState(true); // Loading state for initial fetch
 
   useEffect(() => {
     carregarViagens();
@@ -25,7 +25,7 @@ const EditarViagem = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // CORREÇÃO AQUI: Rota atualizada para /viagens-ativas-lista
+    // Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -56,8 +56,6 @@ const EditarViagem = () => {
 
   // Lida com o clique no botão "Editar" de uma viagem
   const handleEditar = (viagemSelecionada) => {
-    // Formata as datas para o formato "YYYY-MM-DD" esperado pelo input type="date"
-    // Garante que motorista_id seja um número ou string vazia para o select
     setEdicao({
       ...viagemSelecionada,
       inicio: viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format('YYYY-MM-DD') : '',
@@ -73,16 +71,16 @@ const EditarViagem = () => {
 
   // Confirma e envia as alterações da viagem para o backend
   const confirmarSalvar = async () => {
-    setModalSalvar(false); // Fecha o modal imediatamente
-    setMensagem("");      // Limpa mensagens
-    setErro("");          // Limpa erros
+    setModalSalvar(false);
+    setMensagem("");
+    setErro("");
 
     try {
       // Rota PUT /viagens/:id não foi renomeada, está correta
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
-      setEdicao(null); // Limpa o estado de edição
-      carregarViagens(); // Recarrega a lista de viagens
+      setEdicao(null);
+      carregarViagens();
     } catch (error) {
       console.error("Erro ao salvar alterações da viagem:", error);
       setErro(error.response?.data?.erro || "Erro ao salvar alterações. Tente novamente.");
@@ -96,15 +94,15 @@ const EditarViagem = () => {
 
   // Confirma e envia a requisição para finalizar a viagem para o backend
   const confirmarFinalizar = async () => {
-    setModalFinalizar({ aberto: false, id: null }); // Fecha o modal imediatamente
-    setMensagem("");                               // Limpa mensagens
-    setErro("");                                   // Limpa erros
+    setModalFinalizar({ aberto: false, id: null });
+    setMensagem("");
+    setErro("");
 
     try {
       // Rota PATCH /viagens/:id/finalizar não foi renomeada, está correta
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`);
       setMensagem("Viagem finalizada com sucesso!");
-      carregarViagens(); // Recarrega a lista para remover a viagem finalizada
+      carregarViagens();
     } catch (error) {
       console.error("Erro ao finalizar viagem:", error);
       setErro(error.response?.data?.erro || "Erro ao finalizar viagem. Tente novamente.");
@@ -123,8 +121,8 @@ const EditarViagem = () => {
     setErro("");
 
     try {
-      // Rota DELETE /viagens/:id não foi renomeada, está correta
-      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`); // CHAMA A ROTA DELETE NO BACKEND
+      // Rota DELETE /viagens/:id - CHAMA A ROTA DELETE NO BACKEND
+      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`);
       setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
       carregarViagens(); // Recarrega a lista após a exclusão
     } catch (error) {
