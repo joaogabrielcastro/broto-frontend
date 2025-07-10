@@ -24,7 +24,7 @@ const EditarViagem = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // Rota atualizada para /viagens-ativas-lista
+    // CORREÇÃO AQUI: Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -375,4 +375,3 @@ const EditarViagem = () => {
 };
 
 export default EditarViagem;
-// This file is for editing and finalizing trips in the application.
