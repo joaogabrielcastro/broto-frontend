@@ -5,25 +5,25 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 
 const CadastroViagem = () => {
   const [placas, setPlacas] = useState([]);
-  const [motoristas, setMotoristas] = useState([]); // Novo estado para motoristas
+  const [motoristas, setMotoristas] = useState([]);
   const [form, setForm] = useState({
     placa: "",
-    motorista_id: "", // Novo campo
+    motorista_id: "",
     inicio: "",
     fim: "",
-    origem: "",       // Novo campo
-    destino: "",      // Novo campo
+    origem: "",
+    destino: "",
     frete: "",
     lucro_total: "",
-    status: "Em andamento", // Default status
-    data_termino: "" // This might be set later if the trip is concluded
+    status: "Em andamento",
+    data_termino: ""
   });
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
 
   useEffect(() => {
     // Carregar placas de caminhões
-    axios.get(`${API_BASE_URL}/caminhoes`)
+    axios.get(`${API_BASE_URL}/caminhoes`) // Rota /caminhoes não foi renomeada, está correta
       .then(res => setPlacas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar placas de caminhões:", error);
@@ -32,11 +32,11 @@ const CadastroViagem = () => {
       });
 
     // Carregar motoristas
-    axios.get(`${API_BASE_URL}/motoristas`) // Nova requisição para motoristas
+    axios.get(`${API_BASE_URL}/motoristas`) // Rota /motoristas não foi renomeada, está correta
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
-        setErro(prev => prev + " Erro ao carregar motoristas."); // Adiciona ao erro existente
+        setErro(prev => prev + " Erro ao carregar motoristas.");
         setMotoristas([]);
       });
   }, []);
@@ -52,8 +52,8 @@ const CadastroViagem = () => {
     setErro("");
 
     try {
-      // Enviar todos os dados do formulário, incluindo motorista_id, origem e destino
-      await axios.post(`${API_BASE_URL}/viagens`, form);
+      // Rota /viagens (POST) não foi renomeada, está correta
+      await axios.post(`${API_BASE_URL}/viagens`, form); 
       setMensagem("Viagem cadastrada com sucesso!");
       setForm({
         placa: "",
@@ -66,7 +66,7 @@ const CadastroViagem = () => {
         lucro_total: "",
         status: "Em andamento",
         data_termino: ""
-      }); // Reset form
+      });
     } catch (error) {
       if (error.response) {
         setErro(error.response.data.erro || "Erro ao cadastrar viagem. Tente novamente.");
