@@ -10,10 +10,10 @@ const EditarViagem = () => {
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
-  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // NOVO ESTADO PARA MODAL DE EXCLUSÃO
+  // const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // ESTADO REMOVIDO
   const [mensagem, setMensagem] = useState(""); // For success messages
   const [erro, setErro] = useState("");         // For error messages
-  const [loading, setLoading] = useState(true); // Loading state for initial fetch
+  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
 
   useEffect(() => {
     carregarViagens();
@@ -109,27 +109,9 @@ const EditarViagem = () => {
     }
   };
 
-  // Lida com o clique no botão "Excluir"
-  const handleExcluir = (idViagem, placaViagem) => {
-    setModalExcluir({ aberto: true, id: idViagem, placa: placaViagem });
-  };
-
-  // Confirma e envia a requisição de exclusão para o backend
-  const confirmarExcluir = async () => {
-    setModalExcluir({ aberto: false, id: null, placa: '' }); // Fecha o modal imediatamente
-    setMensagem("");
-    setErro("");
-
-    try {
-      // Rota DELETE /viagens/:id - CHAMA A ROTA DELETE NO BACKEND
-      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`);
-      setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
-      carregarViagens(); // Recarrega a lista após a exclusão
-    } catch (error) {
-      console.error("Erro ao excluir viagem:", error);
-      setErro(error.response?.data?.erro || `Erro ao excluir a viagem da placa ${modalExcluir.placa}. Tente novamente.`);
-    }
-  };
+  // handleExcluir e confirmarExcluir REMOVIDOS
+  // const handleExcluir = (idViagem, placaViagem) => { ... };
+  // const confirmarExcluir = async () => { ... };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -173,13 +155,13 @@ const EditarViagem = () => {
                   >
                     Finalizar
                   </button>
-                  {/* BOTÃO: Excluir Viagem */}
-                  <button
+                  {/* BOTÃO EXCLUIR REMOVIDO */}
+                  {/* <button
                     onClick={() => handleExcluir(v.id, v.placa)}
                     className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
                   >
                     Excluir
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))}
