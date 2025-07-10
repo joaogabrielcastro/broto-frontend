@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs";
+import dayjs from "dayjs"; // Import dayjs for date formatting
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -10,20 +10,21 @@ const EditarViagem = () => {
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // NOVO ESTADO PARA MODAL DE EXCLUSÃO
+  const [mensagem, setMensagem] = useState(""); // For success messages
+  const [erro, setErro] = useState("");         // For error messages
+  const [loading, setLoading] = useState(true); // Loading state for initial fetch
 
   useEffect(() => {
     carregarViagens();
-    carregarMotoristas();
+    carregarMotoristas(); // Carrega motoristas ao montar o componente
   }, []);
 
   const carregarViagens = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // CORREÇÃO AQUI: Rota atualizada para /viagens-ativas-lista
+    // Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -99,6 +100,27 @@ const EditarViagem = () => {
     }
   };
 
+  // NOVO: Lida com o clique no botão "Excluir"
+  const handleExcluir = (idViagem, placaViagem) => {
+    setModalExcluir({ aberto: true, id: idViagem, placa: placaViagem });
+  };
+
+  // NOVO: Confirma e envia a requisição de exclusão para o backend
+  const confirmarExcluir = async () => {
+    setModalExcluir({ aberto: false, id: null, placa: '' }); // Fecha o modal imediatamente
+    setMensagem("");
+    setErro("");
+
+    try {
+      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`); // CHAMA A ROTA DELETE NO BACKEND
+      setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
+      carregarViagens(); // Recarrega a lista após a exclusão
+    } catch (error) {
+      console.error("Erro ao excluir viagem:", error);
+      setErro(error.response?.data?.erro || `Erro ao excluir a viagem da placa ${modalExcluir.placa}. Tente novamente.`);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
       <div className="max-w-4xl w-full p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700">
@@ -140,6 +162,13 @@ const EditarViagem = () => {
                     className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
                   >
                     Finalizar
+                  </button>
+                  {/* NOVO BOTÃO: Excluir Viagem */}
+                  <button
+                    onClick={() => handleExcluir(v.id, v.placa)}
+                    className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
+                  >
+                    Excluir
                   </button>
                 </div>
               </div>
@@ -346,3 +375,4 @@ const EditarViagem = () => {
 };
 
 export default EditarViagem;
+// This file is for editing and finalizing trips in the application.

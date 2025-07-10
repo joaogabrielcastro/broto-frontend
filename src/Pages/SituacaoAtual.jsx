@@ -54,7 +54,8 @@ const SituacaoAtual = () => {
     setErro("");
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`); // Usar a rota correta para buscar por placa
+      // CORREÇÃO AQUI: Rota atualizada para /viagens-por-placa/:placa
+      const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
       if (!ultima || !ultima.id) {

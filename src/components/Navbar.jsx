@@ -39,6 +39,9 @@ const Navbar = () => {
         <NavLink to="/graficos" className={linkClasses}>
           Gráficos
         </NavLink>
+        <NavLink to="/listar-motoristas" className={linkClasses}>
+          Listar Motoristas
+        </NavLink>
         <NavLink to="/exportar" className={linkClasses}>
           Exportar Dados
         </NavLink>
