@@ -6,7 +6,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const CadastroMotorista = () => {
   const [form, setForm] = useState({
     nome: '',
-    cnh: '',
     telefone: ''
   });
   const [mensagem, setMensagem] = useState('');
@@ -25,7 +24,7 @@ const CadastroMotorista = () => {
     try {
       await axios.post(`${API_BASE_URL}/motoristas`, form);
       setMensagem('Motorista cadastrado com sucesso!');
-      setForm({ nome: '', cnh: '', telefone: '' }); // Limpa o formulário
+      setForm({ nome: '', telefone: '' }); // Limpa o formulário
     } catch (error) {
       console.error('Erro ao cadastrar motorista:', error);
       if (error.response) {
