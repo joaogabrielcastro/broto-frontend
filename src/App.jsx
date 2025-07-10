@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import ConsultaPorPlaca from "./Pages/ConsultaPelaPlaca";
-import DashboardProdutividade from "./Pages/DashboardProdutividade";
 import SituacaoAtual from "./Pages/SituacaoAtual";
 import CadastroCaminhao from "./Pages/CadastroCaminhao";
 import CadastroViagem from "./Pages/CadastroViagem";
@@ -19,7 +18,6 @@ function App() {
       <main className="py-8 px-4 sm:px-6 lg:px-8">
         <Routes>
           <Route path="/" element={<ConsultaPorPlaca />} />
-          <Route path="/dashboard" element={<DashboardProdutividade />} />
           <Route path="/situacao" element={<SituacaoAtual />} />
           <Route path="/cadastro" element={<CadastroCaminhao />} />
           <Route path="/cadastrar-viagem" element={<CadastroViagem />} />
