@@ -16,9 +16,6 @@ const Navbar = () => {
         <NavLink to="/" className={linkClasses}>
           Consulta
         </NavLink>
-        <NavLink to="/produtividade" className={linkClasses}>
-          Produtividade
-        </NavLink>
         <NavLink to="/situacao" className={linkClasses}>
           Situação Atual
         </NavLink>
