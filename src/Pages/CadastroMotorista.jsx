@@ -6,6 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const CadastroMotorista = () => {
   const [form, setForm] = useState({
     nome: '',
+    // cnh: '', // CNH REMOVIDA do estado
     telefone: ''
   });
   const [mensagem, setMensagem] = useState('');
@@ -16,15 +17,16 @@ const CadastroMotorista = () => {
   };
 
   const cadastrar = async (event) => {
-    event.preventDefault(); // Evita o comportamento padrão de recarregar a página
+    event.preventDefault();
 
-    setMensagem(''); // Limpa mensagens anteriores
-    setErro('');     // Limpa erros anteriores
+    setMensagem('');
+    setErro('');
 
     try {
-      await axios.post(`${API_BASE_URL}/motoristas`, form);
+      // CNH REMOVIDA da requisição
+      await axios.post(`${API_BASE_URL}/motoristas`, { nome: form.nome, telefone: form.telefone });
       setMensagem('Motorista cadastrado com sucesso!');
-      setForm({ nome: '', telefone: '' }); // Limpa o formulário
+      setForm({ nome: '', telefone: '' }); // CNH REMOVIDA do reset do formulário
     } catch (error) {
       console.error('Erro ao cadastrar motorista:', error);
       if (error.response) {
@@ -60,8 +62,8 @@ const CadastroMotorista = () => {
             />
           </div>
 
-          {/* CNH */}
-          <div className="mb-4">
+          {/* CNH REMOVIDA */}
+          {/* <div className="mb-4">
             <label htmlFor="cnh" className="block text-gray-200 text-sm font-semibold mb-2">
               Número da CNH:
             </label>
@@ -75,7 +77,7 @@ const CadastroMotorista = () => {
               placeholder="Ex: 12345678900"
               required
             />
-          </div>
+          </div> */}
 
           {/* Telefone (Opcional) */}
           <div className="mb-6">
