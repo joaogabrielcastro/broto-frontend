@@ -1,17 +1,16 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const linkClasses = ({ isActive }) =>
     `px-4 py-2 rounded-md transition duration-300 ease-in-out font-semibold text-lg whitespace-nowrap
-     ${
-       isActive
-         ? "bg-red-700 text-white shadow-lg"
-         : "text-gray-300 hover:text-red-400 hover:bg-neutral-700"
+     ${isActive
+       ? 'bg-red-700 text-white shadow-lg transform scale-105'
+       : 'text-gray-300 hover:text-red-400 hover:bg-neutral-700'
      }`;
 
   return (
-    <nav className="bg-neutral-800 p-4 shadow-xl border-b-2 border-red-700 font-inter sticky top-0 z-40">
+    <nav className="bg-neutral-800 p-4 shadow-2xl border-b-4 border-red-700 font-inter sticky top-0 z-40">
       <div className="container mx-auto flex flex-wrap justify-center items-center gap-x-6 gap-y-4">
         <NavLink to="/" className={linkClasses}>
           Consulta
@@ -23,9 +22,10 @@ const Navbar = () => {
           Cadastrar Caminhão
         </NavLink>
         <NavLink to="/cadastrar-motorista" className={linkClasses}>
-          {" "}
-          {/* NOVO LINK */}
           Cadastrar Motorista
+        </NavLink>
+        <NavLink to="/cadastrar-cliente" className={linkClasses}> {/* NOVO LINK */}
+          Cadastrar Cliente
         </NavLink>
         <NavLink to="/cadastrar-viagem" className={linkClasses}>
           Cadastrar Viagem
@@ -38,9 +38,6 @@ const Navbar = () => {
         </NavLink>
         <NavLink to="/graficos" className={linkClasses}>
           Gráficos
-        </NavLink>
-        <NavLink to="/listar-motoristas" className={linkClasses}>
-          Listar Motoristas
         </NavLink>
         <NavLink to="/exportar" className={linkClasses}>
           Exportar Dados

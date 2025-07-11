@@ -8,7 +8,8 @@ import EditarViagem from "./Pages/EditarViagem";
 import GraficosDesempenho from "./Pages/GraficosDesempenho";
 import ExportarDados from "./Pages/ExportarDados";
 import CadastroMotorista from "./Pages/CadastroMotorista";
-import ListarMotoristas from "./Pages/ListarMotoristas"; // Importe o novo componente
+import ListarMotoristas from "./Pages/ListarMotoristas";
+import CadastroCliente from "./Pages/CadastroCliente"; // Importe o novo componente
 import Navbar from './components/Navbar';
 
 function App() {
@@ -27,7 +28,8 @@ function App() {
           <Route path="/graficos" element={<GraficosDesempenho />} />
           <Route path="/exportar" element={<ExportarDados />} />
           <Route path="/cadastrar-motorista" element={<CadastroMotorista />} />
-          <Route path="/listar-motoristas" element={<ListarMotoristas />} /> {/* NOVA ROTA */}
+          <Route path="/listar-motoristas" element={<ListarMotoristas />} />
+          <Route path="/cadastrar-cliente" element={<CadastroCliente />} /> {/* NOVA ROTA */}
         </Routes>
       </main>
     </div>
