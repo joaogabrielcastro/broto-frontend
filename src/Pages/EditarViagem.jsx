@@ -7,25 +7,25 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const EditarViagem = () => {
   const [viagens, setViagens] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
+  const [clientes, setClientes] = useState([]); // NOVO ESTADO PARA CLIENTES
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
-  // const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // ESTADO REMOVIDO
-  const [mensagem, setMensagem] = useState(""); // For success messages
-  const [erro, setErro] = useState("");         // For error messages
-  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
+  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' });
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     carregarViagens();
-    carregarMotoristas(); // Carrega motoristas ao montar o componente
+    carregarMotoristas();
+    carregarClientes(); // NOVO: Carrega clientes ao montar o componente
   }, []);
 
-  // Função para carregar as viagens ativas do backend
   const carregarViagens = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -43,9 +43,8 @@ const EditarViagem = () => {
       });
   };
 
-  // Função para carregar a lista de motoristas do backend
   const carregarMotoristas = () => {
-    axios.get(`${API_BASE_URL}/motoristas`) // Rota /motoristas não foi renomeada, está correta
+    axios.get(`${API_BASE_URL}/motoristas`)
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
@@ -54,29 +53,37 @@ const EditarViagem = () => {
       });
   };
 
-  // Lida com o clique no botão "Editar" de uma viagem
+  // NOVO: Função para carregar a lista de clientes do backend
+  const carregarClientes = () => {
+    axios.get(`${API_BASE_URL}/clientes`)
+      .then(res => setClientes(res.data))
+      .catch((error) => {
+        console.error("Erro ao buscar clientes:", error);
+        setErro(prev => prev ? prev + " Erro ao carregar clientes." : "Erro ao carregar clientes.");
+        setClientes([]);
+      });
+  };
+
   const handleEditar = (viagemSelecionada) => {
     setEdicao({
       ...viagemSelecionada,
       inicio: viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format('YYYY-MM-DD') : '',
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
       motorista_id: viagemSelecionada.motorista_id || '', 
+      cliente_id: viagemSelecionada.cliente_id || '', // NOVO: Carrega cliente_id
     });
   };
 
-  // Abre o modal de confirmação para salvar edições
   const handleSalvar = () => {
     setModalSalvar(true);
   };
 
-  // Confirma e envia as alterações da viagem para o backend
   const confirmarSalvar = async () => {
     setModalSalvar(false);
     setMensagem("");
     setErro("");
 
     try {
-      // Rota PUT /viagens/:id não foi renomeada, está correta
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null);
@@ -87,19 +94,16 @@ const EditarViagem = () => {
     }
   };
 
-  // Abre o modal de confirmação para finalizar uma viagem
   const handleFinalizar = (idViagem) => {
     setModalFinalizar({ aberto: true, id: idViagem });
   };
 
-  // Confirma e envia a requisição para finalizar a viagem para o backend
   const confirmarFinalizar = async () => {
     setModalFinalizar({ aberto: false, id: null });
     setMensagem("");
     setErro("");
 
     try {
-      // Rota PATCH /viagens/:id/finalizar não foi renomeada, está correta
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`);
       setMensagem("Viagem finalizada com sucesso!");
       carregarViagens();
@@ -109,9 +113,24 @@ const EditarViagem = () => {
     }
   };
 
-  // handleExcluir e confirmarExcluir REMOVIDOS
-  // const handleExcluir = (idViagem, placaViagem) => { ... };
-  // const confirmarExcluir = async () => { ... };
+  const handleExcluir = (idViagem, placaViagem) => {
+    setModalExcluir({ aberto: true, id: idViagem, placa: placaViagem });
+  };
+
+  const confirmarExcluir = async () => {
+    setModalExcluir({ aberto: false, id: null, placa: '' });
+    setMensagem("");
+    setErro("");
+
+    try {
+      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`);
+      setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
+      carregarViagens();
+    } catch (error) {
+      console.error("Erro ao excluir viagem:", error);
+      setErro(error.response?.data?.erro || `Erro ao excluir a viagem da placa ${modalExcluir.placa}. Tente novamente.`);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -119,7 +138,7 @@ const EditarViagem = () => {
         <h2 className="text-3xl font-bold mb-8 text-red-500 text-center">Editar ou Concluir Viagens</h2>
 
         {mensagem && (
-          <p className="mb-6 text-center text-green-400 bg-green-900 bg-opacity-30 border border-green-700 rounded-md p-3">
+          <p className="mb-6 text-center text-green-400 bg-green-900 bg-opacity30 border border-green-700 rounded-md p-3">
             {mensagem}
           </p>
         )}
@@ -137,7 +156,9 @@ const EditarViagem = () => {
               <div key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="mb-1"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
+                  <p className="mb-1"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
                   <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
+                  <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p> {/* NOVO CAMPO */}
                   <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio}</p>
                   <p><strong className="text-red-400">Status:</strong> {v.status}</p>
@@ -155,13 +176,12 @@ const EditarViagem = () => {
                   >
                     Finalizar
                   </button>
-                  {/* BOTÃO EXCLUIR REMOVIDO */}
-                  {/* <button
+                  <button
                     onClick={() => handleExcluir(v.id, v.placa)}
                     className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
                   >
                     Excluir
-                  </button> */}
+                  </button>
                 </div>
               </div>
             ))}
@@ -187,6 +207,19 @@ const EditarViagem = () => {
               />
             </div>
 
+            {/* Nome do Caminhão para Edição */}
+            <div className="mb-4">
+              <label htmlFor="caminhao_nome-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Nome do Caminhão:</label>
+              <input
+                type="text"
+                id="caminhao_nome-edicao"
+                placeholder="Nome do Caminhão"
+                className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                value={edicao.caminhao_nome || ''} // NOVO: Campo de nome do caminhão
+                onChange={e => setEdicao({ ...edicao, caminhao_nome: e.target.value })}
+              />
+            </div>
+
             {/* Motorista para Edição */}
             <div className="mb-4">
               <label htmlFor="motorista-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Motorista:</label>
@@ -201,12 +234,35 @@ const EditarViagem = () => {
                 <option value="">Selecione o Motorista</option>
                 {motoristas.map((motorista) => (
                   <option key={motorista.id} value={motorista.id}>
-                    {motorista.nome} ({motorista.cnh})
+                    {motorista.nome}
                   </option>
                 ))}
               </select>
               {motoristas.length === 0 && (
                 <p className="text-sm text-yellow-500 mt-2">Nenhum motorista disponível. Cadastre motoristas primeiro.</p>
+              )}
+            </div>
+
+            {/* Cliente para Edição */}
+            <div className="mb-4">
+              <label htmlFor="cliente-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Cliente:</label>
+              <select
+                id="cliente-edicao"
+                name="cliente_id"
+                value={edicao.cliente_id}
+                onChange={e => setEdicao({ ...edicao, cliente_id: e.target.value })}
+                className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                required
+              >
+                <option value="">Selecione o Cliente</option>
+                {clientes.map((cliente) => (
+                  <option key={cliente.id} value={cliente.id}>
+                    {cliente.nome}
+                  </option>
+                ))}
+              </select>
+              {clientes.length === 0 && (
+                <p className="text-sm text-yellow-500 mt-2">Nenhum cliente disponível. Cadastre clientes primeiro.</p>
               )}
             </div>
 

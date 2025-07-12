@@ -6,9 +6,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const CadastroViagem = () => {
   const [placas, setPlacas] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
+  const [clientes, setClientes] = useState([]); // NOVO ESTADO PARA CLIENTES
   const [form, setForm] = useState({
     placa: "",
     motorista_id: "",
+    cliente_id: "", // NOVO CAMPO
     inicio: "",
     fim: "",
     origem: "",
@@ -23,7 +25,7 @@ const CadastroViagem = () => {
 
   useEffect(() => {
     // Carregar placas de caminhões
-    axios.get(`${API_BASE_URL}/caminhoes`) // Rota /caminhoes não foi renomeada, está correta
+    axios.get(`${API_BASE_URL}/caminhoes`)
       .then(res => setPlacas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar placas de caminhões:", error);
@@ -32,12 +34,21 @@ const CadastroViagem = () => {
       });
 
     // Carregar motoristas
-    axios.get(`${API_BASE_URL}/motoristas`) // Rota /motoristas não foi renomeada, está correta
+    axios.get(`${API_BASE_URL}/motoristas`)
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
         setErro(prev => prev + " Erro ao carregar motoristas.");
         setMotoristas([]);
+      });
+
+    // NOVO: Carregar clientes
+    axios.get(`${API_BASE_URL}/clientes`) // Nova requisição para clientes
+      .then(res => setClientes(res.data))
+      .catch((error) => {
+        console.error("Erro ao buscar clientes:", error);
+        setErro(prev => prev + " Erro ao carregar clientes.");
+        setClientes([]);
       });
   }, []);
 
@@ -52,12 +63,13 @@ const CadastroViagem = () => {
     setErro("");
 
     try {
-      // Rota /viagens (POST) não foi renomeada, está correta
-      await axios.post(`${API_BASE_URL}/viagens`, form); 
+      // Enviar todos os dados do formulário, incluindo cliente_id
+      await axios.post(`${API_BASE_URL}/viagens`, form);
       setMensagem("Viagem cadastrada com sucesso!");
       setForm({
         placa: "",
         motorista_id: "",
+        cliente_id: "", // Limpa o campo cliente_id
         inicio: "",
         fim: "",
         origem: "",
@@ -66,7 +78,7 @@ const CadastroViagem = () => {
         lucro_total: "",
         status: "Em andamento",
         data_termino: ""
-      });
+      }); // Reset form
     } catch (error) {
       if (error.response) {
         setErro(error.response.data.erro || "Erro ao cadastrar viagem. Tente novamente.");
@@ -126,12 +138,37 @@ const CadastroViagem = () => {
               <option value="">Selecione o Motorista</option>
               {motoristas.map((motorista) => (
                 <option key={motorista.id} value={motorista.id}>
-                  {motorista.nome} ({motorista.cnh})
+                  {motorista.nome}
                 </option>
               ))}
             </select>
             {motoristas.length === 0 && !erro && (
               <p className="text-sm text-yellow-500 mt-2">Nenhum motorista disponível. Cadastre motoristas primeiro.</p>
+            )}
+          </div>
+
+          {/* NOVO: Cliente */}
+          <div className="mb-4">
+            <label htmlFor="cliente_id" className="block text-gray-200 text-sm font-semibold mb-2">
+              Cliente:
+            </label>
+            <select
+              id="cliente_id"
+              name="cliente_id"
+              value={form.cliente_id}
+              onChange={handleChange}
+              className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-300"
+              required
+            >
+              <option value="">Selecione o Cliente</option>
+              {clientes.map((cliente) => (
+                <option key={cliente.id} value={cliente.id}>
+                  {cliente.nome}
+                </option>
+              ))}
+            </select>
+            {clientes.length === 0 && !erro && (
+              <p className="text-sm text-yellow-500 mt-2">Nenhum cliente disponível. Cadastre clientes primeiro.</p>
             )}
           </div>
 

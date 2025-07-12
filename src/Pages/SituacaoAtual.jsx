@@ -9,10 +9,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 
 const SituacaoAtual = () => {
   const [viagens, setViagens] = useState([]);
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
+  const [mensagem, setMensagem] = useState(""); // For success messages
+  const [erro, setErro] = useState("");         // For error messages
   const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, placa: null });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Loading state
 
   useEffect(() => {
     carregarViagens();
@@ -20,9 +20,9 @@ const SituacaoAtual = () => {
 
   const carregarViagens = () => {
     setLoading(true);
-    setMensagem("");
-    setErro("");
-    // CORREÇÃO AQUI: Rota atualizada para /situacao-atual-caminhoes
+    setMensagem(""); // Clear previous messages
+    setErro("");     // Clear previous errors
+    // Rota atualizada para /situacao-atual-caminhoes
     axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
         const rawData = Array.isArray(res.data) ? res.data : []; 
@@ -54,7 +54,7 @@ const SituacaoAtual = () => {
     setErro("");
 
     try {
-      // CORREÇÃO AQUI: Rota atualizada para /viagens-por-placa/:placa
+      // Rota atualizada para /viagens-por-placa/:placa
       const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
@@ -105,9 +105,11 @@ const SituacaoAtual = () => {
                 >
                   <div className="mb-4 md:mb-0">
                     <p className="text-2xl font-bold text-red-400 mb-2">🚚 Placa: {v.placa || 'N/A'}</p>
-                    <p className="mb-1"><span className="font-semibold text-gray-300">Motorista:</span> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p>
-                    <p className="mb-1"><span className="font-semibold text-gray-300">Rota:</span> <span className="text-gray-300">{v.origem || 'N/A'}</span> <span className="text-red-400 font-bold">➔</span> <span className="text-gray-300">{v.destino || 'N/A'}</span></p>
-                    <p className="mb-1"><span className="font-semibold text-gray-300">Início:</span> {inicioFormatado}</p>
+                    <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                    <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p>
+                    <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p> {/* NOVO CAMPO */}
+                    <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
+                    <p className="mb-1"><strong className="text-red-400">Início:</strong> {inicioFormatado}</p>
                     <p className="mb-1"><span className="font-semibold text-gray-300">Dias na estrada:</span> <span className="font-bold text-amber-400">{dias} dia(s)</span></p>
                     <p>
                       <span className="font-semibold text-gray-300">Status:</span>{" "}

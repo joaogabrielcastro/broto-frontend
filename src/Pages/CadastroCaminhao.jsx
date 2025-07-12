@@ -1,13 +1,11 @@
-// Exemplo em CadastroCaminhao.jsx
 import { useState } from "react";
 import axios from "axios";
 
-// A URL base da sua API será injetada aqui pelo Vite durante o build
-// A variável VITE_API_BASE_URL é a que você configurou no Vercel
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001"; // Fallback para dev local
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const CadastroCaminhao = () => {
   const [placa, setPlaca] = useState('');
+  const [nomeCaminhao, setNomeCaminhao] = useState(''); // NOVO ESTADO PARA NOME DO CAMINHÃO
   const [mensagem, setMensagem] = useState('');
   const [erro, setErro] = useState('');
 
@@ -18,11 +16,15 @@ const CadastroCaminhao = () => {
     setErro('');
 
     try {
-      // Use a variável API_BASE_URL aqui
-      const response = await axios.post(`${API_BASE_URL}/caminhoes`, { placa });
+      // Inclui o campo 'nome' na requisição POST
+      const response = await axios.post(`${API_BASE_URL}/caminhoes`, { 
+        placa, 
+        nome: nomeCaminhao // Envia o nome (pode ser vazio, pois é opcional)
+      });
       
       setMensagem('Caminhão cadastrado com sucesso!');
-      setPlaca('');
+      setPlaca(''); // Limpa o campo de placa
+      setNomeCaminhao(''); // Limpa o campo de nome
     } catch (error) {
       console.error('Erro de rede ou na requisição:', error);
       if (error.response) {
@@ -54,6 +56,22 @@ const CadastroCaminhao = () => {
               placeholder="Ex: ABC1234"
             />
           </div>
+
+          {/* NOVO CAMPO: Nome do Caminhão (Opcional) */}
+          <div className="mb-4">
+            <label htmlFor="nomeCaminhao" className="block text-gray-200 text-sm font-semibold mb-2">
+              Nome do Caminhão (opcional):
+            </label>
+            <input
+              type="text"
+              id="nomeCaminhao"
+              className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-300"
+              value={nomeCaminhao}
+              onChange={(e) => setNomeCaminhao(e.target.value)}
+              placeholder="Ex: Caminhão Rápido"
+            />
+          </div>
+
           <button
             type="submit"
             className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"

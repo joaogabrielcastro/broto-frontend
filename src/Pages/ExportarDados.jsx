@@ -15,7 +15,7 @@ const ExportarDados = () => {
   useEffect(() => {
     setLoading(true);
     setError("");
-    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
+    // Rota atualizada para /viagens-finalizadas-lista
     axios.get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -43,8 +43,16 @@ const ExportarDados = () => {
     try {
       const ws = XLSX.utils.json_to_sheet(viagens.map(v => ({
         Placa: v.placa,
+        "Nome Caminhão": v.caminhao_nome || 'N/A', // NOVO CAMPO
+        Motorista: v.motorista_nome || 'N/A',     // NOVO CAMPO
+        Cliente: v.cliente_nome || 'N/A',         // NOVO CAMPO
+        Origem: v.origem || 'N/A',
+        Destino: v.destino || 'N/A',
+        "Data Início": v.inicio,
         "Data Fim": v.fim,
+        Frete: parseFloat(v.frete).toFixed(2),
         "Lucro Total (R$)": parseFloat(v.lucro_total).toFixed(2),
+        Status: v.status
       })));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Viagens Finalizadas");
@@ -75,12 +83,20 @@ const ExportarDados = () => {
 
       const dadosTabela = viagens.map((v) => [
         v.placa,
+        v.caminhao_nome || 'N/A', // NOVO CAMPO
+        v.motorista_nome || 'N/A', // NOVO CAMPO
+        v.cliente_nome || 'N/A',   // NOVO CAMPO
+        v.origem || 'N/A',
+        v.destino || 'N/A',
+        v.inicio,
         v.fim,
+        `R$ ${Number(v.frete).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         `R$ ${Number(v.lucro_total).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        v.status
       ]);
 
       autoTable(doc, {
-        head: [["Placa", "Data Fim", "Lucro Total"]],
+        head: [["Placa", "Caminhão", "Motorista", "Cliente", "Origem", "Destino", "Início", "Fim", "Frete", "Lucro", "Status"]], // CABEÇALHO ATUALIZADO
         body: dadosTabela,
         startY: 30,
         headStyles: {
@@ -92,13 +108,21 @@ const ExportarDados = () => {
         bodyStyles: { textColor: [200, 200, 200], fillColor: [42, 42, 42] },
         styles: {
             font: "helvetica",
-            fontSize: 10,
-            cellPadding: 3,
+            fontSize: 8, // Reduzir um pouco a fonte para caber mais colunas
+            cellPadding: 2, // Reduzir padding
         },
         columnStyles: {
-          0: { cellWidth: 'auto' },
-          1: { cellWidth: 'auto' },
-          2: { cellWidth: 'auto' },
+          0: { cellWidth: 'auto' }, // Placa
+          1: { cellWidth: 'auto' }, // Caminhão
+          2: { cellWidth: 'auto' }, // Motorista
+          3: { cellWidth: 'auto' }, // Cliente
+          4: { cellWidth: 'auto' }, // Origem
+          5: { cellWidth: 'auto' }, // Destino
+          6: { cellWidth: 'auto' }, // Início
+          7: { cellWidth: 'auto' }, // Fim
+          8: { cellWidth: 'auto' }, // Frete
+          9: { cellWidth: 'auto' }, // Lucro
+          10: { cellWidth: 'auto' }, // Status
         }
       });
 
@@ -139,7 +163,7 @@ const ExportarDados = () => {
             {error}
           </p>
         ) : viagens.length > 0 ? (
-          <div className="max-h-96 overflow-y-auto pr-2"> {/* Added scroll for many items */}
+          <div className="max-h-96 overflow-y-auto pr-2">
             <ul className="space-y-3">
               {viagens.map((v) => (
                 <li
@@ -148,6 +172,11 @@ const ExportarDados = () => {
                 >
                   <div>
                     <p className="text-lg font-semibold"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
+                    <p className="text-sm"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                    <p className="text-sm"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                    <p className="text-sm"><strong className="text-red-400">Cliente:</strong> {v.cliente_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                    <p className="text-sm"><strong className="text-red-400">Origem:</strong> {v.origem || 'N/A'}</p>
+                    <p className="text-sm"><strong className="text-red-400">Destino:</strong> {v.destino || 'N/A'}</p>
                     <p className="text-sm"><strong className="text-red-400">Data Fim:</strong> {v.fim}</p>
                   </div>
                   <span className="text-green-400 font-bold text-lg">
