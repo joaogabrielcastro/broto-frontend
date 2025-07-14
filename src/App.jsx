@@ -28,7 +28,6 @@ function App() {
           <Route path="/graficos" element={<GraficosDesempenho />} />
           <Route path="/exportar" element={<ExportarDados />} />
           <Route path="/cadastrar-motorista" element={<CadastroMotorista />} />
-          <Route path="/listar-motoristas" element={<ListarMotoristas />} />
           <Route path="/cadastrar-cliente" element={<CadastroCliente />} /> {/* NOVA ROTA */}
         </Routes>
       </main>
