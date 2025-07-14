@@ -12,13 +12,13 @@ const EditarViagem = () => {
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
   const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' });
-  const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [mensagem, setMensagem] = useState(""); // For success messages
+  const [erro, setErro] = useState("");         // For error messages
+  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
 
   useEffect(() => {
     carregarViagens();
-    carregarMotoristas();
+    carregarMotoristas(); // Carrega motoristas ao montar o componente
     carregarClientes(); // NOVO: Carrega clientes ao montar o componente
   }, []);
 
@@ -26,6 +26,7 @@ const EditarViagem = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
+    // Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -138,7 +139,7 @@ const EditarViagem = () => {
         <h2 className="text-3xl font-bold mb-8 text-red-500 text-center">Editar ou Concluir Viagens</h2>
 
         {mensagem && (
-          <p className="mb-6 text-center text-green-400 bg-green-900 bg-opacity30 border border-green-700 rounded-md p-3">
+          <p className="mb-6 text-center text-green-400 bg-green-900 bg-opacity-30 border border-green-700 rounded-md p-3">
             {mensagem}
           </p>
         )}

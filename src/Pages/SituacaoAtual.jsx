@@ -9,10 +9,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 
 const SituacaoAtual = () => {
   const [viagens, setViagens] = useState([]);
-  const [mensagem, setMensagem] = useState(""); // For success messages
-  const [erro, setErro] = useState("");         // For error messages
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
   const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, placa: null });
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     carregarViagens();
@@ -20,8 +20,8 @@ const SituacaoAtual = () => {
 
   const carregarViagens = () => {
     setLoading(true);
-    setMensagem(""); // Clear previous messages
-    setErro("");     // Clear previous errors
+    setMensagem("");
+    setErro("");
     // Rota atualizada para /situacao-atual-caminhoes
     axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
@@ -105,10 +105,10 @@ const SituacaoAtual = () => {
                 >
                   <div className="mb-4 md:mb-0">
                     <p className="text-2xl font-bold text-red-400 mb-2">🚚 Placa: {v.placa || 'N/A'}</p>
-                    <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                    <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p>
                     <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p>
-                    <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p> {/* NOVO CAMPO */}
-                    <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
+                    <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
+                    <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                     <p className="mb-1"><strong className="text-red-400">Início:</strong> {inicioFormatado}</p>
                     <p className="mb-1"><span className="font-semibold text-gray-300">Dias na estrada:</span> <span className="font-bold text-amber-400">{dias} dia(s)</span></p>
                     <p>

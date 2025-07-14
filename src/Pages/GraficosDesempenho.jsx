@@ -22,7 +22,7 @@ const GraficosDesempenho = () => {
   useEffect(() => {
     setLoading(true);
     setError("");
-    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
+    // Rota atualizada para /viagens-finalizadas-lista
     axios.get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -45,9 +45,38 @@ const GraficosDesempenho = () => {
     acc[viagem.placa].push({
       data: viagem.fim,
       lucro: Number(viagem.lucro_total),
+      // Adicionando informações extras para o Tooltip
+      caminhao_nome: viagem.caminhao_nome || 'N/A',
+      motorista_nome: viagem.motorista_nome || 'N/A',
+      cliente_nome: viagem.cliente_nome || 'N/A',
+      origem: viagem.origem || 'N/A',
+      destino: viagem.destino || 'N/A',
+      frete: viagem.frete,
+      status: viagem.status
     });
     return acc;
   }, {});
+
+  // Custom Tooltip para exibir mais detalhes
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload; // Pega o objeto de dados completo
+      return (
+        <div className="bg-neutral-700 p-3 border border-red-600 rounded-md shadow-lg text-gray-100 text-sm">
+          <p className="font-bold text-red-400 mb-1">{`Data: ${label}`}</p>
+          <p className="mb-1">{`Lucro: R$ ${data.lucro.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</p>
+          <p className="mb-1">{`Caminhão: ${data.caminhao_nome}`}</p>
+          <p className="mb-1">{`Motorista: ${data.motorista_nome}`}</p>
+          <p className="mb-1">{`Cliente: ${data.cliente_nome}`}</p>
+          <p className="mb-1">{`Rota: ${data.origem} ➔ ${data.destino}`}</p>
+          <p className="mb-1">{`Frete: R$ ${data.frete.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</p>
+          <p>{`Status: ${data.status}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -57,7 +86,7 @@ const GraficosDesempenho = () => {
         {loading ? (
           <p className="text-center text-gray-400 mt-6">Carregando dados dos gráficos...</p>
         ) : error ? (
-          <p className="text-center text-red-400 bg-red-900 bg-opacity-30 border border-red-700 rounded-md p-3">
+          <p className="mb-6 text-center text-red-400 bg-red-900 bg-opacity-30 border border-red-700 rounded-md p-3">
             {error}
           </p>
         ) : Object.keys(viagensPorPlaca).length > 0 ? (
@@ -70,11 +99,7 @@ const GraficosDesempenho = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="#555" />
                     <XAxis dataKey="data" stroke="#ccc" tick={{ fill: '#ccc' }} />
                     <YAxis stroke="#ccc" tick={{ fill: '#ccc' }} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: '#333', border: '1px solid #666', color: '#eee' }}
-                      labelStyle={{ color: '#ccc' }}
-                      itemStyle={{ color: '#eee' }}
-                    />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ color: '#eee' }} />
                     <ReferenceLine y={30000} stroke="#ff3333" strokeDasharray="3 3" label={{ value: "Meta Mínima R$30.000", position: "insideTopRight", fill: "#ff3333" }} />
                     <Line

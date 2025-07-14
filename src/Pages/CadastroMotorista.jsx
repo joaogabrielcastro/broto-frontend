@@ -17,10 +17,10 @@ const CadastroMotorista = () => {
   };
 
   const cadastrar = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Evita o comportamento padrão de recarregar a página
 
-    setMensagem('');
-    setErro('');
+    setMensagem(''); // Limpa mensagens anteriores
+    setErro('');     // Limpa erros anteriores
 
     try {
       // CNH REMOVIDA da requisição

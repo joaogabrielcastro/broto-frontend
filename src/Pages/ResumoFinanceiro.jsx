@@ -24,7 +24,7 @@ const ResumoFinanceiro = () => {
   useEffect(() => {
     setLoading(true);
     setError("");
-    // CORREÇÃO AQUI: Rota atualizada para /viagens-finalizadas-lista
+    // Rota atualizada para /viagens-finalizadas-lista
     axios
       .get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then((res) => {
@@ -48,7 +48,7 @@ const ResumoFinanceiro = () => {
   }, []);
 
   const data = {
-    labels: viagens.map((v) => `${v.placa} - ${v.fim || "N/A"}`),
+    labels: viagens.map((v) => `${v.placa} - ${v.cliente_nome || "N/A"} - ${v.fim || "N/A"}`), // Adicionado nome do cliente
     datasets: [
       {
         label: "Lucro Total (R$)",
@@ -88,6 +88,10 @@ const ResumoFinanceiro = () => {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}`,
+          title: (ctx) => { // Adiciona mais detalhes ao título do tooltip
+            const data = viagens[ctx[0].dataIndex];
+            return `Placa: ${data.placa || 'N/A'}\nCliente: ${data.cliente_nome || 'N/A'}\nData Fim: ${data.fim || 'N/A'}`;
+          }
         },
       },
     },
@@ -102,7 +106,7 @@ const ResumoFinanceiro = () => {
         },
         title: {
           display: true,
-          text: "Viagens (Placa - Data Fim)",
+          text: "Viagens (Placa - Cliente - Data Fim)", // Título do eixo X atualizado
           color: "#e0e0e0",
         },
       },
@@ -137,7 +141,7 @@ const ResumoFinanceiro = () => {
             Carregando dados do resumo financeiro...
           </p>
         ) : error ? (
-          <p className="text-center text-red-400 bg-red-900 bg-opacity-30 border border-red-700 rounded-md p-3">
+          <p className="mb-6 text-center text-red-400 bg-red-900 bg-opacity-30 border border-red-700 rounded-md p-3">
             {error}
           </p>
         ) : viagens.length > 0 ? (

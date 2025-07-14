@@ -17,15 +17,15 @@ const CadastroViagem = () => {
     destino: "",
     frete: "",
     lucro_total: "",
-    status: "Em andamento",
-    data_termino: ""
+    status: "Em andamento", // Default status
+    data_termino: "" // This might be set later if the trip is concluded
   });
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
 
   useEffect(() => {
     // Carregar placas de caminhões
-    axios.get(`${API_BASE_URL}/caminhoes`)
+    axios.get(`${API_BASE_URL}/caminhoes`) // Rota /caminhoes não foi renomeada, está correta
       .then(res => setPlacas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar placas de caminhões:", error);
@@ -34,11 +34,11 @@ const CadastroViagem = () => {
       });
 
     // Carregar motoristas
-    axios.get(`${API_BASE_URL}/motoristas`)
+    axios.get(`${API_BASE_URL}/motoristas`) // Rota /motoristas não foi renomeada, está correta
       .then(res => setMotoristas(res.data))
       .catch((error) => {
         console.error("Erro ao buscar motoristas:", error);
-        setErro(prev => prev + " Erro ao carregar motoristas.");
+        setErro(prev => prev + " Erro ao carregar motoristas."); // Adiciona ao erro existente
         setMotoristas([]);
       });
 
@@ -63,8 +63,8 @@ const CadastroViagem = () => {
     setErro("");
 
     try {
-      // Enviar todos os dados do formulário, incluindo cliente_id
-      await axios.post(`${API_BASE_URL}/viagens`, form);
+      // Enviar todos os dados do formulário, incluindo motorista_id, origem e destino
+      await axios.post(`${API_BASE_URL}/viagens`, form); 
       setMensagem("Viagem cadastrada com sucesso!");
       setForm({
         placa: "",

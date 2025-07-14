@@ -102,9 +102,10 @@ const ConsultaPelaPlaca = () => {
                 key={v.id}
                 className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100"
               >
-                <p className="mb-1"><strong><span className="text-red-400">Placa:</span></strong> {v.placa || 'N/A'}</p> {/* Placa já existia */}
-                <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                <p className="mb-1"><strong><span className="text-red-400">Placa:</span></strong> {v.placa || 'N/A'}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> {v.motorista_nome || 'N/A'}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> {v.cliente_nome || 'N/A'}</p> {/* NOVO CAMPO */}
                 <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Início:</span></strong> {v.inicio}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Fim:</span></strong> {v.fim}</p>
