@@ -8,7 +8,6 @@ import EditarViagem from "./Pages/EditarViagem";
 import GraficosDesempenho from "./Pages/GraficosDesempenho";
 import ExportarDados from "./Pages/ExportarDados";
 import CadastroMotorista from "./Pages/CadastroMotorista";
-import ListarMotoristas from "./Pages/ListarMotoristas";
 import CadastroCliente from "./Pages/CadastroCliente"; // Importe o novo componente
 import Navbar from './components/Navbar';
 
