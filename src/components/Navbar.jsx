@@ -18,18 +18,26 @@ const Navbar = () => {
         <NavLink to="/situacao" className={linkClasses}>
           Situação Atual
         </NavLink>
-        <NavLink to="/cadastro" className={linkClasses}>
+        
+        {/* NOVO LINK ÚNICO para todos os cadastros */}
+        <NavLink to="/cadastrar" className={linkClasses}>
+          Cadastrar
+        </NavLink>
+
+        {/* LINKS DE CADASTRO INDIVIDUAIS REMOVIDOS */}
+        {/* <NavLink to="/cadastro" className={linkClasses}>
           Cadastrar Caminhão
-        </NavLink>
-        <NavLink to="/cadastrar-motorista" className={linkClasses}>
+        </NavLink> */}
+        {/* <NavLink to="/cadastrar-motorista" className={linkClasses}>
           Cadastrar Motorista
-        </NavLink>
-        <NavLink to="/cadastrar-cliente" className={linkClasses}> {/* NOVO LINK */}
+        </NavLink> */}
+        {/* <NavLink to="/cadastrar-cliente" className={linkClasses}>
           Cadastrar Cliente
-        </NavLink>
-        <NavLink to="/cadastrar-viagem" className={linkClasses}>
+        </NavLink> */}
+        {/* <NavLink to="/cadastrar-viagem" className={linkClasses}>
           Cadastrar Viagem
-        </NavLink>
+        </NavLink> */}
+
         <NavLink to="/resumo" className={linkClasses}>
           Resumo Financeiro
         </NavLink>
@@ -47,4 +55,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar;

@@ -1,14 +1,16 @@
 import { Routes, Route } from "react-router-dom";
 import ConsultaPorPlaca from "./Pages/ConsultaPelaPlaca";
 import SituacaoAtual from "./Pages/SituacaoAtual";
-import CadastroCaminhao from "./Pages/CadastroCaminhao";
-import CadastroViagem from "./Pages/CadastroViagem";
+// REMOVIDOS: Imports dos componentes de cadastro individuais
+// import CadastroCaminhao from "./Pages/CadastroCaminhao";
+// import CadastroMotorista from "./Pages/CadastroMotorista";
+// import CadastroCliente from "./Pages/CadastroCliente";
+// import CadastroViagem from "./Pages/CadastroViagem";
 import ResumoFinanceiro from "./Pages/ResumoFinanceiro";
 import EditarViagem from "./Pages/EditarViagem";
 import GraficosDesempenho from "./Pages/GraficosDesempenho";
 import ExportarDados from "./Pages/ExportarDados";
-import CadastroMotorista from "./Pages/CadastroMotorista";
-import CadastroCliente from "./Pages/CadastroCliente"; // Importe o novo componente
+import CadastroGeral from "./Pages/CadastroGeral";
 import Navbar from './components/Navbar';
 
 function App() {
@@ -20,18 +22,24 @@ function App() {
         <Routes>
           <Route path="/" element={<ConsultaPorPlaca />} />
           <Route path="/situacao" element={<SituacaoAtual />} />
-          <Route path="/cadastro" element={<CadastroCaminhao />} />
-          <Route path="/cadastrar-viagem" element={<CadastroViagem />} />
+          
+          {/* NOVA ROTA ÚNICA para todos os cadastros */}
+          <Route path="/cadastrar" element={<CadastroGeral />} /> 
+
+          {/* ROTAS INDIVIDUAIS DE CADASTRO REMOVIDAS */}
+          {/* <Route path="/cadastro" element={<CadastroCaminhao />} /> */}
+          {/* <Route path="/cadastrar-motorista" element={<CadastroMotorista />} /> */}
+          {/* <Route path="/cadastrar-cliente" element={<CadastroCliente />} /> */}
+          {/* <Route path="/cadastrar-viagem" element={<CadastroViagem />} /> */}
+
           <Route path="/resumo" element={<ResumoFinanceiro />} />
           <Route path="/editar" element={<EditarViagem />} />
           <Route path="/graficos" element={<GraficosDesempenho />} />
           <Route path="/exportar" element={<ExportarDados />} />
-          <Route path="/cadastrar-motorista" element={<CadastroMotorista />} />
-          <Route path="/cadastrar-cliente" element={<CadastroCliente />} /> {/* NOVA ROTA */}
         </Routes>
       </main>
     </div>
   );
 }
 
-export default App;
+export default App;
