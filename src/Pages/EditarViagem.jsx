@@ -10,7 +10,7 @@ const EditarViagem = () => {
   const [clientes, setClientes] = useState([]);
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
-  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null }); // ATUALIZADO: para passar frete e custos
+  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
@@ -69,8 +69,8 @@ const EditarViagem = () => {
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
       motorista_id: viagemSelecionada.motorista_id || '', 
       cliente_id: viagemSelecionada.cliente_id || '',
-      custos: viagemSelecionada.custos || 0, // NOVO: Carrega custos
-      lucro_total: viagemSelecionada.lucro_total || 0 // Carrega lucro_total (pode ser 0 ou null)
+      custos: viagemSelecionada.custos || 0,
+      lucro_total: viagemSelecionada.lucro_total || 0
     });
   };
 
@@ -84,7 +84,6 @@ const EditarViagem = () => {
     setErro("");
 
     try {
-      // Envia custos e lucro_total (que será calculado no backend)
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null);
@@ -95,19 +94,16 @@ const EditarViagem = () => {
     }
   };
 
-  // ATUALIZADO: handleFinalizar agora passa frete e custos para o modal
   const handleFinalizar = (viagem) => {
     setModalFinalizar({ aberto: true, id: viagem.id, frete: viagem.frete, custos: viagem.custos || 0 });
   };
 
-  // ATUALIZADO: confirmarFinalizar agora envia custos
   const confirmarFinalizar = async () => {
     setModalFinalizar({ aberto: false, id: null, frete: null, custos: null });
     setMensagem("");
     setErro("");
 
     try {
-      // Envia o ID da viagem e os custos para o backend
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`, { custos: modalFinalizar.custos });
       setMensagem(`Viagem finalizada com sucesso!`);
       carregarViagens();
@@ -117,24 +113,9 @@ const EditarViagem = () => {
     }
   };
 
-  const handleExcluir = (idViagem, placaViagem) => {
-    setModalExcluir({ aberto: true, id: idViagem, placa: placaViagem });
-  };
-
-  const confirmarExcluir = async () => {
-    setModalExcluir({ aberto: false, id: null, placa: '' });
-    setMensagem("");
-    setErro("");
-
-    try {
-      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`);
-      setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
-      carregarViagens();
-    } catch (error) {
-      console.error("Erro ao excluir viagem:", error);
-      setErro(error.response?.data?.erro || `Erro ao excluir a viagem da placa ${modalExcluir.placa}. Tente novamente.`);
-    }
-  };
+  // handleExcluir e confirmarExcluir REMOVIDOS (se o botão não existe, as funções não são necessárias)
+  // const handleExcluir = (idViagem, placaViagem) => { ... };
+  // const confirmarExcluir = async () => { ... };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -165,9 +146,9 @@ const EditarViagem = () => {
                   <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
                   <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio}</p>
-                  <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p> {/* Exibe o frete */}
-                  <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p> {/* NOVO: Exibe custos */}
-                  <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p> {/* Exibe lucro total */}
+                  <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
+                  <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
+                  <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
                   <p><strong className="text-red-400">Status:</strong> {v.status}</p>
                 </div>
                 <div className="flex gap-4 mt-4 md:mt-0">
@@ -180,19 +161,13 @@ const EditarViagem = () => {
                   {/* Botão Finalizar só aparece se a viagem estiver "Em andamento" */}
                   {v.status === 'Em andamento' && (
                     <button
-                      onClick={() => handleFinalizar(v)} // Passa a viagem para o modal de finalização
+                      onClick={() => handleFinalizar(v)}
                       className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
                     >
                       Finalizar
                     </button>
                   )}
                   {/* BOTÃO EXCLUIR REMOVIDO */}
-                  {/* <button
-                    onClick={() => handleExcluir(v.id, v.placa)}
-                    className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
-                  >
-                    Excluir
-                  </button> */}
                 </div>
               </div>
             ))}
@@ -352,6 +327,7 @@ const EditarViagem = () => {
                 className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
                 value={edicao.custos}
                 onChange={e => setEdicao({ ...edicao, custos: e.target.value })}
+                disabled={edicao.status === 'Finalizada'} // DESABILITA SE FINALIZADA
               />
             </div>
 
@@ -424,7 +400,7 @@ const EditarViagem = () => {
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
               <h2 className="text-2xl font-semibold mb-4 text-red-500">Finalizar Viagem</h2>
-              <p className="mb-2">Insira os custos para calcular o lucro total:</p> {/* NOVO TEXTO */}
+              <p className="mb-2">Insira os custos para calcular o lucro total:</p>
               <div className="mb-4">
                 <label htmlFor="custos-finalizar" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
                 <input
@@ -433,12 +409,12 @@ const EditarViagem = () => {
                   name="custos"
                   placeholder="Ex: 500"
                   className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                  value={modalFinalizar.custos || ''} // Valor do custo no modal
+                  value={modalFinalizar.custos || ''}
                   onChange={e => setModalFinalizar({ ...modalFinalizar, custos: e.target.value })}
                   required
                 />
               </div>
-              <p className="mb-6">Frete: R$ {parseFloat(modalFinalizar.frete || 0).toFixed(2)} - Custos: R$ {parseFloat(modalFinalizar.custos || 0).toFixed(2)} = Lucro: R$ {(parseFloat(modalFinalizar.frete || 0) - parseFloat(modalFinalizar.custos || 0)).toFixed(2)}</p> {/* CÁLCULO NO MODAL */}
+              <p className="mb-6">Frete: R$ {parseFloat(modalFinalizar.frete || 0).toFixed(2)} - Custos: R$ {parseFloat(modalFinalizar.custos || 0).toFixed(2)} = Lucro: R$ {(parseFloat(modalFinalizar.frete || 0) - parseFloat(modalFinalizar.custos || 0)).toFixed(2)}</p>
               <div className="flex justify-end gap-4">
                 <button
                   className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300"

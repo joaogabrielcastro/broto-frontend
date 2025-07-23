@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'; // Certifique-se de que dayjs está instalado (npm install dayjs)
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -146,7 +146,7 @@ const CadastroGeral = () => {
     const [clientes, setClientes] = useState([]);
     const [form, setForm] = useState({
       placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "",
-      origem: "", destino: "", frete: "", lucro_total: "",
+      origem: "", destino: "", frete: "", custos: "", // CUSTOS ADICIONADO AQUI
       status: "Em andamento", data_termino: ""
     });
     const [mensagem, setMensagem] = useState("");
@@ -163,9 +163,10 @@ const CadastroGeral = () => {
       event.preventDefault();
       setMensagem(''); setErro('');
       try {
-        await axios.post(`${API_BASE_URL}/viagens`, form);
+        // Envia 'custos' e 'frete', mas não 'lucro_total'
+        await axios.post(`${API_BASE_URL}/viagens`, form); 
         setMensagem("Viagem cadastrada com sucesso!");
-        setForm({ placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "", origem: "", destino: "", frete: "", lucro_total: "", status: "Em andamento", data_termino: "" });
+        setForm({ placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "", origem: "", destino: "", frete: "", custos: "", status: "Em andamento", data_termino: "" }); // Limpa 'custos'
       } catch (error) {
         setErro(error.response?.data?.erro || 'Erro de conexão com o servidor ou ao cadastrar viagem.');
         console.error("Erro ao cadastrar viagem:", error);
@@ -212,8 +213,8 @@ const CadastroGeral = () => {
             <input type="number" id="frete" name="frete" value={form.frete} onChange={handleChange} className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5000" required/>
           </div>
           <div className="mb-6">
-            <label htmlFor="lucro_total" className="block text-gray-200 text-sm font-semibold mb-2">Lucro Total:</label>
-            <input type="number" id="lucro_total" name="lucro_total" value={form.lucro_total} onChange={handleChange} className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 1500" required/>
+            <label htmlFor="custos" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
+            <input type="number" id="custos" name="custos" value={form.custos} onChange={handleChange} className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 1000"/>
           </div>
           <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300 transform hover:scale-105">Cadastrar Viagem</button>
         </form>
@@ -246,4 +247,4 @@ const CadastroGeral = () => {
   );
 };
 
-export default CadastroGeral;
+export default CadastroGeral;
