@@ -22,7 +22,6 @@ const SituacaoAtual = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // Rota atualizada para /situacao-atual-caminhoes
     axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
         const rawData = Array.isArray(res.data) ? res.data : []; 
@@ -54,7 +53,6 @@ const SituacaoAtual = () => {
     setErro("");
 
     try {
-      // Rota atualizada para /viagens-por-placa/:placa
       const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
@@ -64,7 +62,7 @@ const SituacaoAtual = () => {
         return;
       }
 
-      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`);
+      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`, { custos: ultima.custos }); // Passa custos para o backend
       setMensagem(`Viagem do caminhão ${placa} finalizada com sucesso!`);
       carregarViagens();
     } catch (err) {
@@ -94,6 +92,7 @@ const SituacaoAtual = () => {
         ) : viagens.length > 0 ? (
           <div className="grid gap-6 max-h-96 overflow-y-auto pr-2">
             {viagens.map((v, i) => {
+              // CORREÇÃO AQUI: Formatação da data de início para DD/MM/AAAA
               const inicioDayjs = v.inicio ? dayjs(v.inicio) : null;
               const inicioFormatado = inicioDayjs && inicioDayjs.isValid() ? inicioDayjs.format("DD/MM/YYYY") : "Data inválida ou ausente";
               const dias = inicioDayjs && inicioDayjs.isValid() ? dayjs().diff(inicioDayjs, "day") : "N/A";
@@ -108,7 +107,7 @@ const SituacaoAtual = () => {
                     <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p>
                     <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> <span className="text-amber-400 font-bold">{v.motorista_nome || 'N/A'}</span></p>
                     <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
-                    <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
+                    <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                     <p className="mb-1"><strong className="text-red-400">Início:</strong> {inicioFormatado}</p>
                     <p className="mb-1"><span className="font-semibold text-gray-300">Dias na estrada:</span> <span className="font-bold text-amber-400">{dias} dia(s)</span></p>
                     <p>
@@ -135,7 +134,21 @@ const SituacaoAtual = () => {
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
               <h2 className="text-2xl font-semibold mb-4 text-red-500">Finalizar Viagem</h2>
-              <p className="mb-6">Deseja realmente finalizar a viagem do caminhão <span className="font-bold text-red-400">{modalConfirmacao.placa}</span>?</p>
+              <p className="mb-2">Insira os custos para calcular o lucro total:</p>
+              <div className="mb-4">
+                <label htmlFor="custos-finalizar" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
+                <input
+                  type="number"
+                  id="custos-finalizar"
+                  name="custos"
+                  placeholder="Ex: 500"
+                  className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={modalFinalizar.custos || ''}
+                  onChange={e => setModalFinalizar({ ...modalFinalizar, custos: e.target.value })}
+                  required
+                />
+              </div>
+              <p className="mb-6">Frete: R$ {parseFloat(modalFinalizar.frete || 0).toFixed(2)} - Custos: R$ {parseFloat(modalFinalizar.custos || 0).toFixed(2)} = Lucro: R$ {(parseFloat(modalFinalizar.frete || 0) - parseFloat(modalFinalizar.custos || 0)).toFixed(2)}</p>
               <div className="flex justify-end gap-4">
                 <button
                   className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300"
@@ -159,3 +172,4 @@ const SituacaoAtual = () => {
 };
 
 export default SituacaoAtual;
+
