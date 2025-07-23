@@ -7,26 +7,24 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001
 const EditarViagem = () => {
   const [viagens, setViagens] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
-  const [clientes, setClientes] = useState([]); // NOVO ESTADO PARA CLIENTES
+  const [clientes, setClientes] = useState([]);
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
-  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null });
-  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' });
-  const [mensagem, setMensagem] = useState(""); // For success messages
-  const [erro, setErro] = useState("");         // For error messages
-  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
+  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null }); // ATUALIZADO: para passar frete e custos
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     carregarViagens();
-    carregarMotoristas(); // Carrega motoristas ao montar o componente
-    carregarClientes(); // NOVO: Carrega clientes ao montar o componente
+    carregarMotoristas();
+    carregarClientes();
   }, []);
 
   const carregarViagens = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // Rota atualizada para /viagens-ativas-lista
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -54,7 +52,6 @@ const EditarViagem = () => {
       });
   };
 
-  // NOVO: Função para carregar a lista de clientes do backend
   const carregarClientes = () => {
     axios.get(`${API_BASE_URL}/clientes`)
       .then(res => setClientes(res.data))
@@ -71,7 +68,9 @@ const EditarViagem = () => {
       inicio: viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format('YYYY-MM-DD') : '',
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
       motorista_id: viagemSelecionada.motorista_id || '', 
-      cliente_id: viagemSelecionada.cliente_id || '', // NOVO: Carrega cliente_id
+      cliente_id: viagemSelecionada.cliente_id || '',
+      custos: viagemSelecionada.custos || 0, // NOVO: Carrega custos
+      lucro_total: viagemSelecionada.lucro_total || 0 // Carrega lucro_total (pode ser 0 ou null)
     });
   };
 
@@ -85,6 +84,7 @@ const EditarViagem = () => {
     setErro("");
 
     try {
+      // Envia custos e lucro_total (que será calculado no backend)
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null);
@@ -95,18 +95,21 @@ const EditarViagem = () => {
     }
   };
 
-  const handleFinalizar = (idViagem) => {
-    setModalFinalizar({ aberto: true, id: idViagem });
+  // ATUALIZADO: handleFinalizar agora passa frete e custos para o modal
+  const handleFinalizar = (viagem) => {
+    setModalFinalizar({ aberto: true, id: viagem.id, frete: viagem.frete, custos: viagem.custos || 0 });
   };
 
+  // ATUALIZADO: confirmarFinalizar agora envia custos
   const confirmarFinalizar = async () => {
-    setModalFinalizar({ aberto: false, id: null });
+    setModalFinalizar({ aberto: false, id: null, frete: null, custos: null });
     setMensagem("");
     setErro("");
 
     try {
-      await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`);
-      setMensagem("Viagem finalizada com sucesso!");
+      // Envia o ID da viagem e os custos para o backend
+      await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`, { custos: modalFinalizar.custos });
+      setMensagem(`Viagem finalizada com sucesso!`);
       carregarViagens();
     } catch (error) {
       console.error("Erro ao finalizar viagem:", error);
@@ -157,11 +160,14 @@ const EditarViagem = () => {
               <div key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="mb-1"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
-                  <p className="mb-1"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                  <p className="mb-1"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
-                  <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p> {/* NOVO CAMPO */}
+                  <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
                   <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio}</p>
+                  <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p> {/* Exibe o frete */}
+                  <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p> {/* NOVO: Exibe custos */}
+                  <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p> {/* Exibe lucro total */}
                   <p><strong className="text-red-400">Status:</strong> {v.status}</p>
                 </div>
                 <div className="flex gap-4 mt-4 md:mt-0">
@@ -171,18 +177,22 @@ const EditarViagem = () => {
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => handleFinalizar(v.id)}
-                    className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
-                  >
-                    Finalizar
-                  </button>
-                  <button
+                  {/* Botão Finalizar só aparece se a viagem estiver "Em andamento" */}
+                  {v.status === 'Em andamento' && (
+                    <button
+                      onClick={() => handleFinalizar(v)} // Passa a viagem para o modal de finalização
+                      className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
+                    >
+                      Finalizar
+                    </button>
+                  )}
+                  {/* BOTÃO EXCLUIR REMOVIDO */}
+                  {/* <button
                     onClick={() => handleExcluir(v.id, v.placa)}
                     className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
                   >
                     Excluir
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))}
@@ -216,7 +226,7 @@ const EditarViagem = () => {
                 id="caminhao_nome-edicao"
                 placeholder="Nome do Caminhão"
                 className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                value={edicao.caminhao_nome || ''} // NOVO: Campo de nome do caminhão
+                value={edicao.caminhao_nome || ''}
                 onChange={e => setEdicao({ ...edicao, caminhao_nome: e.target.value })}
               />
             </div>
@@ -331,15 +341,29 @@ const EditarViagem = () => {
               />
             </div>
 
+            {/* NOVO CAMPO: Custos para Edição */}
             <div className="mb-4">
-              <label htmlFor="lucro-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Lucro Total (R$):</label>
+              <label htmlFor="custos-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
               <input
                 type="number"
-                id="lucro-edicao"
-                placeholder="Lucro Total (R$)"
+                id="custos-edicao"
+                name="custos"
+                placeholder="Custos da Viagem"
                 className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                value={edicao.lucro_total}
-                onChange={e => setEdicao({ ...edicao, lucro_total: e.target.value })}
+                value={edicao.custos}
+                onChange={e => setEdicao({ ...edicao, custos: e.target.value })}
+              />
+            </div>
+
+            {/* Lucro Total para Edição (Apenas exibição, não input) */}
+            <div className="mb-4">
+              <label htmlFor="lucro_total-edicao" className="block text-gray-200 text-sm font-semibold mb-2">Lucro Total (Calculado):</label>
+              <input
+                type="number"
+                id="lucro_total-edicao"
+                className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 cursor-not-allowed"
+                value={parseFloat(edicao.frete || 0) - parseFloat(edicao.custos || 0)} // Calcula na UI
+                disabled
               />
             </div>
 
@@ -400,11 +424,25 @@ const EditarViagem = () => {
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
               <h2 className="text-2xl font-semibold mb-4 text-red-500">Finalizar Viagem</h2>
-              <p className="mb-6">Deseja realmente finalizar esta viagem?</p>
+              <p className="mb-2">Insira os custos para calcular o lucro total:</p> {/* NOVO TEXTO */}
+              <div className="mb-4">
+                <label htmlFor="custos-finalizar" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
+                <input
+                  type="number"
+                  id="custos-finalizar"
+                  name="custos"
+                  placeholder="Ex: 500"
+                  className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  value={modalFinalizar.custos || ''} // Valor do custo no modal
+                  onChange={e => setModalFinalizar({ ...modalFinalizar, custos: e.target.value })}
+                  required
+                />
+              </div>
+              <p className="mb-6">Frete: R$ {parseFloat(modalFinalizar.frete || 0).toFixed(2)} - Custos: R$ {parseFloat(modalFinalizar.custos || 0).toFixed(2)} = Lucro: R$ {(parseFloat(modalFinalizar.frete || 0) - parseFloat(modalFinalizar.custos || 0)).toFixed(2)}</p> {/* CÁLCULO NO MODAL */}
               <div className="flex justify-end gap-4">
                 <button
                   className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300"
-                  onClick={() => setModalFinalizar({ aberto: false, id: null })}
+                  onClick={() => setModalFinalizar({ aberto: false, id: null, frete: null, custos: null })}
                 >
                   Cancelar
                 </button>
