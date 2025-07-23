@@ -10,7 +10,7 @@ const EditarViagem = () => {
   const [clientes, setClientes] = useState([]);
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
-  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
+  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null }); // ATUALIZADO: para passar frete e custos
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
@@ -69,8 +69,8 @@ const EditarViagem = () => {
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
       motorista_id: viagemSelecionada.motorista_id || '', 
       cliente_id: viagemSelecionada.cliente_id || '',
-      custos: viagemSelecionada.custos || 0,
-      lucro_total: viagemSelecionada.lucro_total || 0
+      custos: viagemSelecionada.custos || 0, // NOVO: Carrega custos
+      lucro_total: viagemSelecionada.lucro_total || 0 // Carrega lucro_total (pode ser 0 ou null)
     });
   };
 
@@ -84,6 +84,7 @@ const EditarViagem = () => {
     setErro("");
 
     try {
+      // Envia custos e lucro_total (que será calculado no backend)
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null);
@@ -94,16 +95,19 @@ const EditarViagem = () => {
     }
   };
 
+  // ATUALIZADO: handleFinalizar agora passa frete e custos para o modal
   const handleFinalizar = (viagem) => {
     setModalFinalizar({ aberto: true, id: viagem.id, frete: viagem.frete, custos: viagem.custos || 0 });
   };
 
+  // ATUALIZADO: confirmarFinalizar agora envia custos
   const confirmarFinalizar = async () => {
     setModalFinalizar({ aberto: false, id: null, frete: null, custos: null });
     setMensagem("");
     setErro("");
 
     try {
+      // Envia o ID da viagem e os custos para o backend
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`, { custos: modalFinalizar.custos });
       setMensagem(`Viagem finalizada com sucesso!`);
       carregarViagens();

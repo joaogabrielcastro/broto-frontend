@@ -146,7 +146,7 @@ const CadastroGeral = () => {
     const [clientes, setClientes] = useState([]);
     const [form, setForm] = useState({
       placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "",
-      origem: "", destino: "", frete: "", custos: "", // CUSTOS ADICIONADO AQUI
+      origem: "", destino: "", frete: "", // custos: "", // CUSTOS REMOVIDO DO CADASTRO INICIAL
       status: "Em andamento", data_termino: ""
     });
     const [mensagem, setMensagem] = useState("");
@@ -163,10 +163,10 @@ const CadastroGeral = () => {
       event.preventDefault();
       setMensagem(''); setErro('');
       try {
-        // Envia 'custos' e 'frete', mas não 'lucro_total'
-        await axios.post(`${API_BASE_URL}/viagens`, form); 
+        // Envia 'frete', mas 'custos' e 'lucro_total' não são enviados no cadastro inicial
+        await axios.post(`${API_BASE_URL}/viagens`, { ...form, custos: 0, lucro_total: null }); // Envia custos como 0 e lucro_total como null
         setMensagem("Viagem cadastrada com sucesso!");
-        setForm({ placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "", origem: "", destino: "", frete: "", custos: "", status: "Em andamento", data_termino: "" }); // Limpa 'custos'
+        setForm({ placa: "", motorista_id: "", cliente_id: "", inicio: "", fim: "", origem: "", destino: "", frete: "", status: "Em andamento", data_termino: "" }); // Limpa form, custos não é mais campo
       } catch (error) {
         setErro(error.response?.data?.erro || 'Erro de conexão com o servidor ou ao cadastrar viagem.');
         console.error("Erro ao cadastrar viagem:", error);
@@ -212,10 +212,11 @@ const CadastroGeral = () => {
             <label htmlFor="frete" className="block text-gray-200 text-sm font-semibold mb-2">Valor do Frete:</label>
             <input type="number" id="frete" name="frete" value={form.frete} onChange={handleChange} className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5000" required/>
           </div>
-          <div className="mb-6">
+          {/* Campo de Custos REMOVIDO do cadastro inicial */}
+          {/* <div className="mb-6">
             <label htmlFor="custos" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
             <input type="number" id="custos" name="custos" value={form.custos} onChange={handleChange} className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 1000"/>
-          </div>
+          </div> */}
           <button type="submit" className="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300 transform hover:scale-105">Cadastrar Viagem</button>
         </form>
         {mensagem && (<p className="mt-6 text-center text-green-400 bg-green-900 bg-opacity-30 border border-green-700 rounded-md p-3">{mensagem}</p>)}
