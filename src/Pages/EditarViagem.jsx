@@ -1,28 +1,53 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs"; // Import dayjs for date formatting
-import "dayjs/locale/pt-br"; // Import locale for pt-br format
-
-dayjs.locale("pt-br"); // Set locale
+import dayjs from "dayjs";
+import { useParams } from 'react-router-dom'; // NOVO: Importa useParams
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const EditarViagem = () => {
-  const [viagens, setViagens] = useState([]);
+  const [viagens, setViagens] = useState([]); // Ainda usado para recarregar a lista após edição/finalização
   const [motoristas, setMotoristas] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [edicao, setEdicao] = useState(null);
+  const [edicao, setEdicao] = useState(null); // Estado para a viagem que está sendo editada
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const { id: viagemIdFromUrl } = useParams(); // NOVO: Obtém o ID da URL
+
   useEffect(() => {
-    carregarViagens();
+    // Carrega a lista de viagens ATIVAS
+    carregarViagens(); 
     carregarMotoristas();
     carregarClientes();
   }, []);
+
+  // NOVO useEffect para carregar a viagem específica se um ID vier da URL
+  useEffect(() => {
+    if (viagemIdFromUrl) {
+      setLoading(true);
+      axios.get(`${API_BASE_URL}/viagens-ativas-lista`) // Busca todas as ativas
+        .then(res => {
+          const viagemParaEditar = res.data.find(v => String(v.id) === viagemIdFromUrl);
+          if (viagemParaEditar) {
+            handleEditar(viagemParaEditar); // Preenche o formulário com a viagem encontrada
+            setMensagem(`Editando viagem ID: ${viagemIdFromUrl}`);
+          } else {
+            setErro(`Viagem com ID ${viagemIdFromUrl} não encontrada ou não está ativa.`);
+          }
+        })
+        .catch(error => {
+          console.error(`Erro ao buscar viagem ID ${viagemIdFromUrl}:`, error);
+          setErro(`Erro ao carregar detalhes da viagem ID ${viagemIdFromUrl}.`);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [viagemIdFromUrl]); // Depende do ID da URL
 
   const carregarViagens = () => {
     setLoading(true);
@@ -134,48 +159,51 @@ const EditarViagem = () => {
 
         {loading ? (
           <p className="text-center text-gray-400 mt-6">Carregando viagens ativas...</p>
-        ) : viagens.length > 0 ? (
-          <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-            {viagens.map((v) => (
-              <div key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="mb-1"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
-                  <p className="mb-1"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p>
-                  <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
-                  <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
-                  <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
-                  {/* CORREÇÃO AQUI: Formatação da data de início para DD/MM/AAAA */}
-                  <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A'}</p>
-                  {/* CORREÇÃO AQUI: Formatação da data de fim para DD/MM/AAAA */}
-                  <p className="mb-1"><strong className="text-red-400">Fim:</strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
-                  <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
-                  <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
-                  <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
-                  <p><strong className="text-red-400">Status:</strong> {v.status}</p>
-                </div>
-                <div className="flex gap-4 mt-4 md:mt-0">
-                  <button
-                    onClick={() => handleEditar(v)}
-                    className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
-                  >
-                    Editar
-                  </button>
-                  {/* Botão Finalizar só aparece se a viagem estiver "Em andamento" */}
-                  {v.status === 'Em andamento' && (
-                    <button
-                      onClick={() => handleFinalizar(v)}
-                      className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
-                    >
-                      Finalizar
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
-          !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
+          <>
+            {viagens.length > 0 ? (
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                {viagens.map((v) => (
+                  <div key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="mb-1"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
+                      <p className="mb-1"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p>
+                      <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
+                      <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
+                      <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
+                      <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A'}</p>
+                      <p className="mb-1"><strong className="text-red-400">Fim:</strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
+                      <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
+                      <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
+                      <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
+                      <p><strong className="text-red-400">Status:</strong> {v.status}</p>
+                    </div>
+                    <div className="flex gap-4 mt-4 md:mt-0">
+                      <button
+                        onClick={() => handleEditar(v)}
+                        className="bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
+                      >
+                        Editar
+                      </button>
+                      {/* Botão Finalizar só aparece se a viagem estiver "Em andamento" */}
+                      {v.status === 'Em andamento' && (
+                        <button
+                          onClick={() => handleFinalizar(v)}
+                          className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
+                        >
+                          Finalizar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
+            )}
+          </>
         )}
+
 
         {edicao && (
           <div className="mt-8 p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700 text-gray-100">
