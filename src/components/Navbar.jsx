@@ -1,12 +1,13 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const linkClasses = ({ isActive }) =>
     `px-4 py-2 rounded-md transition duration-300 ease-in-out font-semibold text-lg whitespace-nowrap
-     ${isActive
-       ? 'bg-red-700 text-white shadow-lg transform scale-105'
-       : 'text-gray-300 hover:text-red-400 hover:bg-neutral-700'
+     ${
+       isActive
+         ? "bg-red-700 text-white shadow-lg transform scale-105"
+         : "text-gray-300 hover:text-red-400 hover:bg-neutral-700"
      }`;
 
   return (
@@ -18,31 +19,16 @@ const Navbar = () => {
         <NavLink to="/situacao" className={linkClasses}>
           Situação Atual
         </NavLink>
-        
+
         {/* NOVO LINK ÚNICO para todos os cadastros */}
         <NavLink to="/cadastrar" className={linkClasses}>
           Cadastrar
         </NavLink>
-
-        {/* LINKS DE CADASTRO INDIVIDUAIS REMOVIDOS */}
-        {/* <NavLink to="/cadastro" className={linkClasses}>
-          Cadastrar Caminhão
-        </NavLink> */}
-        {/* <NavLink to="/cadastrar-motorista" className={linkClasses}>
-          Cadastrar Motorista
-        </NavLink> */}
-        {/* <NavLink to="/cadastrar-cliente" className={linkClasses}>
-          Cadastrar Cliente
-        </NavLink> */}
-        {/* <NavLink to="/cadastrar-viagem" className={linkClasses}>
-          Cadastrar Viagem
-        </NavLink> */}
-
-        <NavLink to="/resumo" className={linkClasses}>
-          Resumo Financeiro
-        </NavLink>
         <NavLink to="/editar" className={linkClasses}>
           Editar Viagens
+        </NavLink>
+        <NavLink to="/resumo" className={linkClasses}>
+          Resumo Financeiro
         </NavLink>
         <NavLink to="/graficos" className={linkClasses}>
           Gráficos
@@ -55,4 +41,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar;

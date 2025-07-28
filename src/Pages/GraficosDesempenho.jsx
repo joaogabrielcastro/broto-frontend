@@ -11,6 +11,10 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
+import dayjs from "dayjs"; // Import dayjs for date formatting
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
+
+dayjs.locale("pt-br"); // Set locale
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -43,7 +47,7 @@ const GraficosDesempenho = () => {
   const viagensPorPlaca = viagens.reduce((acc, viagem) => {
     if (!acc[viagem.placa]) acc[viagem.placa] = [];
     acc[viagem.placa].push({
-      data: viagem.fim,
+      data: viagem.fim ? dayjs(viagem.fim).format("DD/MM/YYYY") : 'N/A', // FORMATADO AQUI
       lucro: Number(viagem.lucro_total),
       // Adicionando informações extras para o Tooltip
       caminhao_nome: viagem.caminhao_nome || 'N/A',

@@ -9,6 +9,10 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import dayjs from "dayjs"; // Import dayjs for date formatting
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
+
+dayjs.locale("pt-br"); // Set locale
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -48,7 +52,8 @@ const ResumoFinanceiro = () => {
   }, []);
 
   const data = {
-    labels: viagens.map((v) => `${v.placa} - ${v.cliente_nome || "N/A"} - ${v.fim || "N/A"}`), // Adicionado nome do cliente
+    // CORREÇÃO AQUI: Formatação da data para DD/MM/AAAA e inclusão do nome do caminhão e cliente
+    labels: viagens.map((v) => `${v.placa} - ${v.caminhao_nome || "N/A"} - ${v.cliente_nome || "N/A"} - ${v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : "N/A"}`),
     datasets: [
       {
         label: "Lucro Total (R$)",
@@ -90,7 +95,7 @@ const ResumoFinanceiro = () => {
             })}`,
           title: (ctx) => { // Adiciona mais detalhes ao título do tooltip
             const data = viagens[ctx[0].dataIndex];
-            return `Placa: ${data.placa || 'N/A'}\nCliente: ${data.cliente_nome || 'N/A'}\nData Fim: ${data.fim || 'N/A'}`;
+            return `Placa: ${data.placa || 'N/A'}\nCaminhão: ${data.caminhao_nome || 'N/A'}\nCliente: ${data.cliente_nome || 'N/A'}\nData Fim: ${data.fim ? dayjs(data.fim).format("DD/MM/YYYY") : 'N/A'}`;
           }
         },
       },
@@ -106,7 +111,7 @@ const ResumoFinanceiro = () => {
         },
         title: {
           display: true,
-          text: "Viagens (Placa - Cliente - Data Fim)", // Título do eixo X atualizado
+          text: "Viagens (Placa - Caminhão - Cliente - Data Fim)", // Título do eixo X atualizado
           color: "#e0e0e0",
         },
       },
