@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; // CORREÇÃO AQUI: Garante que useState e useEffect são importados
 import axios from "axios";
 import dayjs from "dayjs";
-import { useParams } from 'react-router-dom'; // NOVO: Importa useParams
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
+import { useParams } from 'react-router-dom'; // Importa useParams
+
+dayjs.locale("pt-br"); // Set locale
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -13,16 +16,13 @@ const EditarViagem = () => {
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
   const [mensagem, setMensagem] = useState("");
-  const [erro, setErro] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  const { id: viagemIdFromUrl } = useParams(); // NOVO: Obtém o ID da URL
+  const [erro, setErro] = useState("");         // For error messages
+  const [loading, setLoading] = useState(true); // Estado de carregamento inicial
 
   useEffect(() => {
-    // Carrega a lista de viagens ATIVAS
-    carregarViagens(); 
-    carregarMotoristas();
-    carregarClientes();
+    carregarViagens();
+    carregarMotoristas(); // Carrega motoristas ao montar o componente
+    carregarClientes(); // NOVO: Carrega clientes ao montar o componente
   }, []);
 
   // NOVO useEffect para carregar a viagem específica se um ID vier da URL
