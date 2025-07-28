@@ -1,5 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
+import dayjs from "dayjs"; // Import dayjs for date formatting
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
+
+dayjs.locale("pt-br"); // Set locale
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -23,7 +27,6 @@ const ConsultaPelaPlaca = () => {
     }
 
     try {
-      // Rota atualizada para /viagens-por-placa/:placa
       const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       
       if (res.data && res.data.viagens && res.data.viagens.length > 0) {
@@ -105,12 +108,14 @@ const ConsultaPelaPlaca = () => {
                 <p className="mb-1"><strong><span className="text-red-400">Placa:</span></strong> {v.placa || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Nome Caminhão:</span></strong> {v.caminhao_nome || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> {v.motorista_nome || 'N/A'}</p>
-                <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> {v.cliente_nome || 'N/A'}</p> {/* NOVO CAMPO */}
+                <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> {v.cliente_nome || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
-                <p className="mb-1"><strong><span className="text-red-400">Início:</span></strong> {v.inicio}</p>
-                <p className="mb-1"><strong><span className="text-red-400">Fim:</span></strong> {v.fim}</p>
-                <p className="mb-1"><strong><span className="text-red-400">Frete:</span></strong> R$ {v.frete}</p>
-                <p className="mb-1"><strong><span className="text-red-400">Lucro:</span></strong> R$ {v.lucro_total}</p>
+                {/* CORREÇÃO AQUI: Formatação das datas para DD/MM/AAAA */}
+                <p className="mb-1"><strong><span className="text-red-400">Início:</span></strong> {v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A'}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Fim:</span></strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Frete:</span></strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Custos:</span></strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
+                <p className="mb-1"><strong><span className="text-red-400">Lucro Total:</span></strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
                 <p><strong><span className="text-red-400">Status:</span></strong> {v.status}</p>
               </div>
             ))}

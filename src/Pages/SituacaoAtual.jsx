@@ -22,6 +22,7 @@ const SituacaoAtual = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
+    // Rota atualizada para /situacao-atual-caminhoes
     axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
         const rawData = Array.isArray(res.data) ? res.data : []; 
@@ -53,6 +54,7 @@ const SituacaoAtual = () => {
     setErro("");
 
     try {
+      // Rota atualizada para /viagens-por-placa/:placa
       const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       const ultima = res.data.viagens.find(v => v.status === "Em andamento");
 
@@ -62,7 +64,7 @@ const SituacaoAtual = () => {
         return;
       }
 
-      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`, { custos: ultima.custos }); // Passa custos para o backend
+      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`, { custos: ultima.custos });
       setMensagem(`Viagem do caminhão ${placa} finalizada com sucesso!`);
       carregarViagens();
     } catch (err) {
@@ -172,4 +174,3 @@ const SituacaoAtual = () => {
 };
 
 export default SituacaoAtual;
-
