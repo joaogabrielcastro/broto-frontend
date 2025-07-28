@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs"; // Import dayjs for date formatting
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
+
+dayjs.locale("pt-br"); // Set locale
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -10,7 +13,7 @@ const EditarViagem = () => {
   const [clientes, setClientes] = useState([]);
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
-  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null }); // ATUALIZADO: para passar frete e custos
+  const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
@@ -69,8 +72,8 @@ const EditarViagem = () => {
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
       motorista_id: viagemSelecionada.motorista_id || '', 
       cliente_id: viagemSelecionada.cliente_id || '',
-      custos: viagemSelecionada.custos || 0, // NOVO: Carrega custos
-      lucro_total: viagemSelecionada.lucro_total || 0 // Carrega lucro_total (pode ser 0 ou null)
+      custos: viagemSelecionada.custos || 0,
+      lucro_total: viagemSelecionada.lucro_total || 0
     });
   };
 
@@ -84,7 +87,6 @@ const EditarViagem = () => {
     setErro("");
 
     try {
-      // Envia custos e lucro_total (que será calculado no backend)
       await axios.put(`${API_BASE_URL}/viagens/${edicao.id}`, edicao);
       setMensagem("Viagem atualizada com sucesso!");
       setEdicao(null);
@@ -95,19 +97,16 @@ const EditarViagem = () => {
     }
   };
 
-  // ATUALIZADO: handleFinalizar agora passa frete e custos para o modal
   const handleFinalizar = (viagem) => {
     setModalFinalizar({ aberto: true, id: viagem.id, frete: viagem.frete, custos: viagem.custos || 0 });
   };
 
-  // ATUALIZADO: confirmarFinalizar agora envia custos
   const confirmarFinalizar = async () => {
     setModalFinalizar({ aberto: false, id: null, frete: null, custos: null });
     setMensagem("");
     setErro("");
 
     try {
-      // Envia o ID da viagem e os custos para o backend
       await axios.patch(`${API_BASE_URL}/viagens/${modalFinalizar.id}/finalizar`, { custos: modalFinalizar.custos });
       setMensagem(`Viagem finalizada com sucesso!`);
       carregarViagens();
@@ -116,10 +115,6 @@ const EditarViagem = () => {
       setErro(error.response?.data?.erro || "Erro ao finalizar viagem. Tente novamente.");
     }
   };
-
-  // handleExcluir e confirmarExcluir REMOVIDOS (se o botão não existe, as funções não são necessárias)
-  // const handleExcluir = (idViagem, placaViagem) => { ... };
-  // const confirmarExcluir = async () => { ... };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -149,7 +144,10 @@ const EditarViagem = () => {
                   <p className="mb-1"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Cliente:</strong> <span className="text-blue-400 font-bold">{v.cliente_nome || 'N/A'}</span></p>
                   <p className="mb-1"><strong className="text-red-400">Rota:</strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
-                  <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio}</p>
+                  {/* CORREÇÃO AQUI: Formatação da data de início para DD/MM/AAAA */}
+                  <p className="mb-1"><strong className="text-red-400">Início:</strong> {v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A'}</p>
+                  {/* CORREÇÃO AQUI: Formatação da data de fim para DD/MM/AAAA */}
+                  <p className="mb-1"><strong className="text-red-400">Fim:</strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
                   <p className="mb-1"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
                   <p className="mb-1"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
                   <p className="mb-1"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
@@ -171,7 +169,6 @@ const EditarViagem = () => {
                       Finalizar
                     </button>
                   )}
-                  {/* BOTÃO EXCLUIR REMOVIDO */}
                 </div>
               </div>
             ))}

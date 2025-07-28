@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs";
-import "dayjs/locale/pt-br";
+import dayjs from "dayjs"; // Import dayjs for date formatting
+import "dayjs/locale/pt-br"; // Import locale for pt-br format
 
-dayjs.locale("pt-br");
+dayjs.locale("pt-br"); // Set locale
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -11,7 +11,7 @@ const SituacaoAtual = () => {
   const [viagens, setViagens] = useState([]);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
-  const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, placa: null });
+  // const [modalConfirmacao, setModalConfirmacao] = useState({ aberto: false, placa: null }); // REMOVIDO
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +22,6 @@ const SituacaoAtual = () => {
     setLoading(true);
     setMensagem("");
     setErro("");
-    // Rota atualizada para /situacao-atual-caminhoes
     axios.get(`${API_BASE_URL}/situacao-atual-caminhoes`)
       .then(res => {
         const rawData = Array.isArray(res.data) ? res.data : []; 
@@ -43,35 +42,9 @@ const SituacaoAtual = () => {
       });
   };
 
-  const handleFinalizarViagem = (placa) => {
-    setModalConfirmacao({ aberto: true, placa });
-  };
-
-  const confirmarFinalizarViagem = async () => {
-    const placa = modalConfirmacao.placa;
-    setModalConfirmacao({ aberto: false, placa: null });
-    setMensagem("");
-    setErro("");
-
-    try {
-      // Rota atualizada para /viagens-por-placa/:placa
-      const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
-      const ultima = res.data.viagens.find(v => v.status === "Em andamento");
-
-      if (!ultima || !ultima.id) {
-        setErro(`Não foi encontrada uma viagem "Em andamento" para a placa ${placa}.`);
-        carregarViagens();
-        return;
-      }
-
-      await axios.patch(`${API_BASE_URL}/viagens/${ultima.id}/finalizar`, { custos: ultima.custos });
-      setMensagem(`Viagem do caminhão ${placa} finalizada com sucesso!`);
-      carregarViagens();
-    } catch (err) {
-      console.error("Erro ao finalizar viagem:", err);
-      setErro(err.response?.data?.erro || `Erro ao finalizar a viagem do caminhão ${placa}. Tente novamente.`);
-    }
-  };
+  // handleFinalizarViagem e confirmarFinalizarViagem REMOVIDOS
+  // const handleFinalizarViagem = (placa) => { ... };
+  // const confirmarFinalizarViagem = async () => { ... };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
@@ -94,7 +67,6 @@ const SituacaoAtual = () => {
         ) : viagens.length > 0 ? (
           <div className="grid gap-6 max-h-96 overflow-y-auto pr-2">
             {viagens.map((v, i) => {
-              // CORREÇÃO AQUI: Formatação da data de início para DD/MM/AAAA
               const inicioDayjs = v.inicio ? dayjs(v.inicio) : null;
               const inicioFormatado = inicioDayjs && inicioDayjs.isValid() ? inicioDayjs.format("DD/MM/YYYY") : "Data inválida ou ausente";
               const dias = inicioDayjs && inicioDayjs.isValid() ? dayjs().diff(inicioDayjs, "day") : "N/A";
@@ -117,56 +89,12 @@ const SituacaoAtual = () => {
                       <span className="text-blue-400 font-bold">🔄 Em andamento</span>
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleFinalizarViagem(v.placa)}
-                    className="bg-green-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300 transform hover:scale-105"
-                  >
-                    Finalizar Viagem
-                  </button>
                 </div>
               );
             })}
           </div>
         ) : (
           !erro && <p className="text-center text-gray-400 mt-6">Nenhum caminhão está em viagem no momento.</p>
-        )}
-
-        {/* Modal de confirmação de finalização */}
-        {modalConfirmacao.aberto && (
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-            <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
-              <h2 className="text-2xl font-semibold mb-4 text-red-500">Finalizar Viagem</h2>
-              <p className="mb-2">Insira os custos para calcular o lucro total:</p>
-              <div className="mb-4">
-                <label htmlFor="custos-finalizar" className="block text-gray-200 text-sm font-semibold mb-2">Custos (R$):</label>
-                <input
-                  type="number"
-                  id="custos-finalizar"
-                  name="custos"
-                  placeholder="Ex: 500"
-                  className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
-                  value={modalFinalizar.custos || ''}
-                  onChange={e => setModalFinalizar({ ...modalFinalizar, custos: e.target.value })}
-                  required
-                />
-              </div>
-              <p className="mb-6">Frete: R$ {parseFloat(modalFinalizar.frete || 0).toFixed(2)} - Custos: R$ {parseFloat(modalFinalizar.custos || 0).toFixed(2)} = Lucro: R$ {(parseFloat(modalFinalizar.frete || 0) - parseFloat(modalFinalizar.custos || 0)).toFixed(2)}</p>
-              <div className="flex justify-end gap-4">
-                <button
-                  className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300"
-                  onClick={() => setModalConfirmacao({ aberto: false, placa: null })}
-                >
-                  Cancelar
-                </button>
-                <button
-                  className="bg-green-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                  onClick={confirmarFinalizarViagem}
-                >
-                  Confirmar Finalização
-                </button>
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>
