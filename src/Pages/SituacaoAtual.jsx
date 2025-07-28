@@ -46,9 +46,18 @@ const SituacaoAtual = () => {
 
   // Função para passar para a tela de custos (Editar Viagem)
   const handlePassarParaCustos = (viagemId) => {
-    // CORREÇÃO AQUI: Converter ambos os IDs para string antes de comparar
-    setViagens(prevViagens => prevViagens.filter(v => String(v.viagem_id) !== String(viagemId)));
-    setMensagem("Redirecionando para edição de custos..."); // Opcional: Mensagem temporária
+    console.log("Tentando remover viagemId:", viagemId); // Log do ID que está sendo passado
+    setViagens(prevViagens => {
+      const filtered = prevViagens.filter(v => {
+        console.log(`Comparando v.viagem_id (${v.viagem_id}) com viagemId (${viagemId})`);
+        // CORREÇÃO AQUI: Converter ambos os IDs para string antes de comparar
+        // Isso garante que a comparação funcione mesmo se um for número e outro string
+        return String(v.viagem_id) !== String(viagemId);
+      });
+      console.log("Número de viagens após filtro:", filtered.length); // Log do tamanho do array filtrado
+      return filtered;
+    });
+    setMensagem("Redirecionando para edição de custos...");
     
     // Navega para /editar/ID_DA_VIAGEM
     navigate(`/editar/${viagemId}`); 
