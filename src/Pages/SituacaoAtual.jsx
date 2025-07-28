@@ -59,10 +59,6 @@ const SituacaoAtual = () => {
     });
 
     setMensagem("Redirecionando para edição de custos...");
-    
-    // NOVO: Adiciona um pequeno atraso para permitir que a UI atualize antes de navegar
-    // Isso é uma "gambiarra" para garantir que o React renderize a mudança de estado
-    // antes de mudar de página, se a renderização for muito rápida.
     setTimeout(() => {
       navigate(`/editar/${viagemId}`); 
     }, 50); // Atraso de 50ms

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
-import { useParams } from "react-router-dom"; // Importa useParams
+import { useParams } from "react-router-dom";
 
 dayjs.locale("pt-br");
 
@@ -10,9 +10,6 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const EditarViagem = () => {
-  // CORREÇÃO AQUI: useParams deve ser chamado DENTRO do componente funcional
-  const { id: viagemIdFromUrl } = useParams();
-
   const [viagens, setViagens] = useState([]);
   const [motoristas, setMotoristas] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -28,26 +25,26 @@ const EditarViagem = () => {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const { id: viagemIdFromUrl } = useParams();
+
   useEffect(() => {
-    // Carrega a lista de viagens ATIVAS
     carregarViagens();
     carregarMotoristas();
     carregarClientes();
   }, []);
 
-  // useEffect para carregar a viagem específica se um ID vier da URL
   useEffect(() => {
     if (viagemIdFromUrl) {
       setLoading(true);
       axios
-        .get(`${API_BASE_URL}/viagens-ativas-lista`) // Busca todas as ativas
+        .get(`${API_BASE_URL}/viagens-ativas-lista`)
         .then((res) => {
           const viagemParaEditar = res.data.find(
             (v) => String(v.id) === viagemIdFromUrl
           );
           if (viagemParaEditar) {
-            handleEditar(viagemParaEditar); // Preenche o formulário com a viagem encontrada
-            setMensagem(`Editando viagem ID: ${viagemIdFromUrl}`);
+            handleEditar(viagemParaEditar);
+            // REMOVIDO: setMensagem(`Editando viagem ID: ${viagemIdFromUrl}`);
           } else {
             setErro(
               `Viagem com ID ${viagemIdFromUrl} não encontrada ou não está ativa.`
@@ -62,7 +59,7 @@ const EditarViagem = () => {
           setLoading(false);
         });
     }
-  }, [viagemIdFromUrl]); // Depende do ID da URL
+  }, [viagemIdFromUrl]);
 
   const carregarViagens = () => {
     setLoading(true);
@@ -300,6 +297,9 @@ const EditarViagem = () => {
 
         {edicao && (
           <div className="mt-8 p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700 text-gray-100">
+            {/* REMOVIDO: Título "Editando Viagem: [ID]" */}
+            {/* <h3 className="text-xl font-bold mb-4 text-red-500">Editando Viagem: {edicao.placa}</h3> */}
+
             <div className="mb-4">
               <label
                 htmlFor="placa-edicao"
