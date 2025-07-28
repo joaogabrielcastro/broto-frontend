@@ -300,10 +300,6 @@ const EditarViagem = () => {
 
         {edicao && (
           <div className="mt-8 p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700 text-gray-100">
-            <h3 className="text-xl font-bold mb-4 text-red-500">
-              Editando Viagem: {edicao.placa}
-            </h3>
-
             <div className="mb-4">
               <label
                 htmlFor="placa-edicao"

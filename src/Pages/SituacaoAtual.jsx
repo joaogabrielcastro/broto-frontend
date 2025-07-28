@@ -46,8 +46,8 @@ const SituacaoAtual = () => {
 
   // Função para passar para a tela de custos (Editar Viagem)
   const handlePassarParaCustos = (viagemId) => {
-    // NOVO: Remove a viagem do estado local IMEDIATAMENTE
-    setViagens(prevViagens => prevViagens.filter(v => v.viagem_id !== viagemId));
+    // CORREÇÃO AQUI: Converter ambos os IDs para string antes de comparar
+    setViagens(prevViagens => prevViagens.filter(v => String(v.viagem_id) !== String(viagemId)));
     setMensagem("Redirecionando para edição de custos..."); // Opcional: Mensagem temporária
     
     // Navega para /editar/ID_DA_VIAGEM
