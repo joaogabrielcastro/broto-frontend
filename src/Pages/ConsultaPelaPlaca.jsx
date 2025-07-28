@@ -27,6 +27,7 @@ const ConsultaPelaPlaca = () => {
     }
 
     try {
+      // Rota atualizada para /viagens-por-placa/:placa
       const res = await axios.get(`${API_BASE_URL}/viagens-por-placa/${placa}`);
       
       if (res.data && res.data.viagens && res.data.viagens.length > 0) {
@@ -34,7 +35,7 @@ const ConsultaPelaPlaca = () => {
         setMensagem(`Viagens encontradas para a placa: ${placa}`);
       } else {
         setViagens([]);
-        setMensagem("Nenhuma viagem encontrada para a placa digitada.");
+        setMensagem("Nenhuma viagem encontrada para a placa digitada."); // Mensagem mais clara
       }
     } catch (error) {
       console.error("Erro ao buscar viagens:", error);
@@ -110,7 +111,6 @@ const ConsultaPelaPlaca = () => {
                 <p className="mb-1"><strong><span className="text-red-400">Motorista:</span></strong> {v.motorista_nome || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Cliente:</span></strong> {v.cliente_nome || 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Rota:</span></strong> {v.origem || 'N/A'} <span className="text-red-400 font-bold">➔</span> {v.destino || 'N/A'}</p>
-                {/* CORREÇÃO AQUI: Formatação das datas para DD/MM/AAAA */}
                 <p className="mb-1"><strong><span className="text-red-400">Início:</span></strong> {v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Fim:</span></strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
                 <p className="mb-1"><strong><span className="text-red-400">Frete:</span></strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
@@ -122,9 +122,10 @@ const ConsultaPelaPlaca = () => {
           </div>
         )}
 
-        {!loading && viagens.length === 0 && !erro && placa && (
+        {/* Mensagem de "Nenhuma viagem encontrada" agora é gerenciada pelo estado 'mensagem' */}
+        {/* {!loading && viagens.length === 0 && !erro && placa && (
           <p className="mt-6 text-center text-gray-400">Nenhuma viagem encontrada para a placa digitada.</p>
-        )}
+        )} */}
       </div>
     </div>
   );
