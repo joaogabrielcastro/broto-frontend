@@ -36,6 +36,9 @@ const Navbar = () => {
         <NavLink to="/exportar" className={linkClasses}>
           Exportar Dados
         </NavLink>
+        <NavLink to="/gestao" className={linkClasses}>
+          Gestão Empresa
+        </NavLink>
       </div>
     </nav>
   );

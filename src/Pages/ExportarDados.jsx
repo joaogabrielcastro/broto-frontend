@@ -4,22 +4,22 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import dayjs from "dayjs"; // Import dayjs for date formatting
-import "dayjs/locale/pt-br"; // Import locale for pt-br format
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
 
-dayjs.locale("pt-br"); // Set locale
+dayjs.locale("pt-br");
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const ExportarDados = () => {
   const [viagens, setViagens] = useState([]);
+  const [viagemSelecionada, setViagemSelecionada] = useState(null); // NOVO ESTADO
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
     setError("");
-    // Rota atualizada para /viagens-finalizadas-lista
     axios.get(`${API_BASE_URL}/viagens-finalizadas-lista`)
       .then(res => {
         setViagens(res.data);
@@ -38,22 +38,23 @@ const ExportarDados = () => {
   }, []);
 
   const exportarExcel = () => {
-    if (viagens.length === 0) {
-      setError("Não há dados de viagens para exportar para Excel.");
+    if (!viagemSelecionada) {
+      setError("Por favor, selecione uma viagem para exportar.");
       return;
     }
     setError("");
 
     try {
-      const ws = XLSX.utils.json_to_sheet(viagens.map(v => ({
+      const dadosParaExportar = [viagemSelecionada]; // Exporta apenas a viagem selecionada
+      const ws = XLSX.utils.json_to_sheet(dadosParaExportar.map(v => ({
         Placa: v.placa,
         "Nome Caminhão": v.caminhao_nome || 'N/A',
         Motorista: v.motorista_nome || 'N/A',
         Cliente: v.cliente_nome || 'N/A',
         Origem: v.origem || 'N/A',
         Destino: v.destino || 'N/A',
-        "Data Início": v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A', // FORMATADO
-        "Data Fim": v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A', // FORMATADO
+        "Data Início": v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A',
+        "Data Fim": v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A',
         Frete: parseFloat(v.frete).toFixed(2),
         Custos: parseFloat(v.custos || 0).toFixed(2),
         "Lucro Total (R$)": parseFloat(v.lucro_total || 0).toFixed(2),
@@ -64,7 +65,7 @@ const ExportarDados = () => {
 
       const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
       const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-      saveAs(blob, "viagens_finalizadas.xlsx");
+      saveAs(blob, `viagem_${viagemSelecionada.placa}.xlsx`); // Nome do arquivo com a placa
       alert("Arquivo Excel exportado com sucesso!");
     } catch (e) {
       console.error("Erro ao exportar para Excel:", e);
@@ -73,8 +74,8 @@ const ExportarDados = () => {
   };
 
   const exportarPDF = () => {
-    if (viagens.length === 0) {
-      setError("Não há dados de viagens para exportar para PDF.");
+    if (!viagemSelecionada) {
+      setError("Por favor, selecione uma viagem para exportar.");
       return;
     }
     setError("");
@@ -84,22 +85,22 @@ const ExportarDados = () => {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 70, 70);
       doc.setFontSize(18);
-      doc.text("Relatório de Viagens Finalizadas", 14, 20);
+      doc.text("Relatório de Viagem", 14, 20);
 
-      const dadosTabela = viagens.map((v) => [
-        v.placa,
-        v.caminhao_nome || 'N/A',
-        v.motorista_nome || 'N/A',
-        v.cliente_nome || 'N/A',
-        v.origem || 'N/A',
-        v.destino || 'N/A',
-        v.inicio ? dayjs(v.inicio).format("DD/MM/YYYY") : 'N/A', // FORMATADO
-        v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A', // FORMATADO
-        `R$ ${Number(v.frete).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        `R$ ${Number(v.custos || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        `R$ ${Number(v.lucro_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        v.status
-      ]);
+      const dadosTabela = [[
+        viagemSelecionada.placa,
+        viagemSelecionada.caminhao_nome || 'N/A',
+        viagemSelecionada.motorista_nome || 'N/A',
+        viagemSelecionada.cliente_nome || 'N/A',
+        viagemSelecionada.origem || 'N/A',
+        viagemSelecionada.destino || 'N/A',
+        viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format("DD/MM/YYYY") : 'N/A',
+        viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format("DD/MM/YYYY") : 'N/A',
+        `R$ ${Number(viagemSelecionada.frete).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        `R$ ${Number(viagemSelecionada.custos || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        `R$ ${Number(viagemSelecionada.lucro_total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        viagemSelecionada.status
+      ]];
 
       autoTable(doc, {
         head: [["Placa", "Caminhão", "Motorista", "Cliente", "Origem", "Destino", "Início", "Fim", "Frete", "Custos", "Lucro", "Status"]],
@@ -133,7 +134,7 @@ const ExportarDados = () => {
         }
       });
 
-      doc.save("relatorio_viagens_finalizadas.pdf");
+      doc.save(`relatorio_viagem_${viagemSelecionada.placa}.pdf`);
       alert("Arquivo PDF exportado com sucesso!");
     } catch (e) {
       console.error("Erro ao exportar para PDF:", e);
@@ -144,24 +145,7 @@ const ExportarDados = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-900 font-inter py-8">
       <div className="max-w-4xl w-full p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700">
-        <h2 className="text-3xl font-bold mb-8 text-red-500 text-center">Exportar Viagens Finalizadas</h2>
-
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-          <button
-            onClick={exportarExcel}
-            className="flex items-center justify-center bg-red-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"
-          >
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-            Exportar Excel
-          </button>
-          <button
-            onClick={exportarPDF}
-            className="flex items-center justify-center bg-red-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"
-          >
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M5.5 17a4.5 4.5 0 01-4.5-4.5V9.5a.5.5 0 011 0v3A3.5 3.5 0 005.5 16h9A3.5 3.5 0 0018 12.5v-3a.5.5 0 011 0v3A4.5 4.5 0 0114.5 17h-9zM4.707 9.293a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V14a1 1 0 11-2 0V7.414L5.414 9.293a1 1 0 01-1.414 0z" clipRule="evenodd"></path></svg>
-            Exportar PDF
-          </button>
-        </div>
+        <h2 className="text-3xl font-bold mb-8 text-red-500 text-center">Exportar Relatórios de Viagens</h2>
 
         {loading ? (
           <p className="text-center text-gray-400 mt-6">Carregando viagens finalizadas...</p>
@@ -170,33 +154,56 @@ const ExportarDados = () => {
             {error}
           </p>
         ) : viagens.length > 0 ? (
-          <div className="max-h-96 overflow-y-auto pr-2">
-            <ul className="space-y-3">
-              {viagens.map((v) => (
-                <li
-                  key={v.id}
-                  className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex justify-between items-center"
-                >
-                  <div>
-                    <p className="text-lg font-semibold"><strong className="text-red-400">Placa:</strong> {v.placa}</p>
-                    <p className="text-sm"><strong className="text-red-400">Nome Caminhão:</strong> {v.caminhao_nome || 'N/A'}</p>
-                    <p className="text-sm"><strong className="text-red-400">Motorista:</strong> {v.motorista_nome || 'N/A'}</p>
-                    <p className="text-sm"><strong className="text-red-400">Cliente:</strong> {v.cliente_nome || 'N/A'}</p>
-                    <p className="text-sm"><strong className="text-red-400">Origem:</strong> {v.origem || 'N/A'}</p>
-                    <p className="text-sm"><strong className="text-red-400">Destino:</strong> {v.destino || 'N/A'}</p>
-                    {/* CORREÇÃO AQUI: Formatação da Data Fim para DD/MM/AAAA */}
-                    <p className="text-sm"><strong className="text-red-400">Data Fim:</strong> {v.fim ? dayjs(v.fim).format("DD/MM/YYYY") : 'N/A'}</p>
-                    <p className="text-sm"><strong className="text-red-400">Frete:</strong> R$ {parseFloat(v.frete).toFixed(2)}</p>
-                    <p className="text-sm"><strong className="text-red-400">Custos:</strong> R$ {parseFloat(v.custos || 0).toFixed(2)}</p>
-                    <p className="text-sm"><strong className="text-red-400">Lucro Total:</strong> R$ {parseFloat(v.lucro_total || 0).toFixed(2)}</p>
-                  </div>
-                  <span className="text-green-400 font-bold text-lg">
-                    R$ {Number(v.lucro_total).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <>
+            {/* NOVO: Dropdown de seleção de viagem */}
+            <div className="mb-8">
+              <label htmlFor="select-viagem" className="block text-gray-200 text-sm font-semibold mb-2">
+                Selecione a Viagem para Exportar:
+              </label>
+              <select
+                id="select-viagem"
+                onChange={(e) => setViagemSelecionada(viagens.find(v => v.id === Number(e.target.value)))}
+                className="w-full p-3 border border-red-700 rounded-md bg-neutral-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                required
+              >
+                <option value="">-- Selecione uma viagem --</option>
+                {viagens.map(v => (
+                  <option key={v.id} value={v.id}>
+                    {`${v.placa} - ${v.origem || 'N/A'} ➔ ${v.destino || 'N/A'} (Lucro: R$${parseFloat(v.lucro_total).toFixed(2)})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+              <button
+                onClick={exportarExcel}
+                className="flex items-center justify-center bg-red-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"
+                disabled={!viagemSelecionada} // Desabilita o botão se nenhuma viagem for selecionada
+              >
+                Exportar Excel
+              </button>
+              <button
+                onClick={exportarPDF}
+                className="flex items-center justify-center bg-red-600 text-white font-bold py-3 px-6 rounded-md shadow-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-800 transition duration-300 transform hover:scale-105"
+                disabled={!viagemSelecionada} // Desabilita o botão se nenhuma viagem for selecionada
+              >
+                Exportar PDF
+              </button>
+            </div>
+            
+            {/* Exibição da lista de viagens removida, já que agora temos o dropdown */}
+            {/* <div className="max-h-96 overflow-y-auto pr-2">
+              <ul className="space-y-3">
+                {viagens.map((v) => (
+                  <li key={v.id} className="bg-neutral-700 border border-red-600 p-4 rounded-lg shadow-md text-gray-100 flex justify-between items-center">
+                    ...
+                  </li>
+                ))}
+              </ul>
+            </div> */}
+
+          </>
         ) : (
           <p className="text-center text-gray-400 mt-6">Nenhuma viagem finalizada encontrada.</p>
         )}

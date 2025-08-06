@@ -13,6 +13,7 @@
     import ExportarDados from "./Pages/ExportarDados";
     import CadastroGeral from "./Pages/CadastroGeral";
     import Navbar from './components/Navbar';
+    import GestaoEmpresa from "./Pages/GestaoEmpresa";
 
     function App() {
       const [showPaymentReminder, setShowPaymentReminder] = useState(false);
@@ -45,6 +46,7 @@
               <Route path="/editar/:id?" element={<EditarViagem />} /> 
               <Route path="/graficos" element={<GraficosDesempenho />} />
               <Route path="/exportar" element={<ExportarDados />} />
+              <Route path="/gestao" element={<GestaoEmpresa />} />
             </Routes>
           </main>
         </div>

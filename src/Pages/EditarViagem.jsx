@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import dayjs from "dayjs"; // Import dayjs for date formatting
-import "dayjs/locale/pt-br"; // Import locale for pt-br format
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
 import { useParams } from 'react-router-dom';
 
-dayjs.locale("pt-br"); // Set locale
+dayjs.locale("pt-br");
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
@@ -15,6 +15,7 @@ const EditarViagem = () => {
   const [edicao, setEdicao] = useState(null);
   const [modalSalvar, setModalSalvar] = useState(false);
   const [modalFinalizar, setModalFinalizar] = useState({ aberto: false, id: null, frete: null, custos: null });
+  const [modalExcluir, setModalExcluir] = useState({ aberto: false, id: null, placa: '' }); // NOVO ESTADO
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,7 @@ const EditarViagem = () => {
           const viagemParaEditar = res.data.find(v => String(v.id) === viagemIdFromUrl);
           if (viagemParaEditar) {
             handleEditar(viagemParaEditar);
+            setMensagem(`Editando viagem ID: ${viagemIdFromUrl}`);
           } else {
             setErro(`Viagem com ID ${viagemIdFromUrl} não encontrada ou não está ativa.`);
           }
@@ -55,7 +57,7 @@ const EditarViagem = () => {
     setErro("");
     axios.get(`${API_BASE_URL}/viagens-ativas-lista`)
       .then(res => {
-        const rawData = Array.isArray(res.data) ? res.data : []; 
+        const rawData = Array.isArray(res.data) ? res.data : [];
         const validViagens = rawData.filter(v => v && v.placa && v.inicio && v.status);
         setViagens(validViagens);
 
@@ -98,7 +100,7 @@ const EditarViagem = () => {
       ...viagemSelecionada,
       inicio: viagemSelecionada.inicio ? dayjs(viagemSelecionada.inicio).format('YYYY-MM-DD') : '',
       fim: viagemSelecionada.fim ? dayjs(viagemSelecionada.fim).format('YYYY-MM-DD') : '',
-      motorista_id: viagemSelecionada.motorista_id || '', 
+      motorista_id: viagemSelecionada.motorista_id || '',
       cliente_id: viagemSelecionada.cliente_id || '',
       custos: viagemSelecionada.custos || 0,
       lucro_total: viagemSelecionada.lucro_total || 0
@@ -141,6 +143,27 @@ const EditarViagem = () => {
     } catch (error) {
       console.error("Erro ao finalizar viagem:", error);
       setErro(error.response?.data?.erro || "Erro ao finalizar viagem. Tente novamente.");
+    }
+  };
+  
+  // NOVO: Lida com o clique no botão "Excluir"
+  const handleExcluir = (idViagem, placaViagem) => {
+    setModalExcluir({ aberto: true, id: idViagem, placa: placaViagem });
+  };
+
+  // NOVO: Confirma e envia a requisição de exclusão para o backend
+  const confirmarExcluir = async () => {
+    setModalExcluir({ aberto: false, id: null, placa: '' });
+    setMensagem("");
+    setErro("");
+
+    try {
+      await axios.delete(`${API_BASE_URL}/viagens/${modalExcluir.id}`);
+      setMensagem(`Viagem da placa ${modalExcluir.placa} excluída com sucesso!`);
+      carregarViagens();
+    } catch (error) {
+      console.error("Erro ao excluir viagem:", error);
+      setErro(error.response?.data?.erro || `Erro ao excluir a viagem da placa ${modalExcluir.placa}. Tente novamente.`);
     }
   };
 
@@ -197,14 +220,19 @@ const EditarViagem = () => {
                           Finalizar
                         </button>
                       )}
+                      {/* NOVO BOTÃO: Excluir Viagem */}
+                      <button
+                        onClick={() => handleExcluir(v.id, v.placa)}
+                        className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-neutral-700 transition duration-300"
+                      >
+                        Excluir
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              // REMOVIDO: !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
-              // A mensagem agora é gerenciada apenas pelo estado 'mensagem'
-              null
+              !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
             )}
           </>
         )}
