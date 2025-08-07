@@ -459,7 +459,7 @@ const EditarViagem = () => {
         )}
 
         {/* Modal de confirmação de finalização */}
-        {modalFinalizar.aberto && (
+     {modalFinalizar.aberto && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
             <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
               <h2 className="text-2xl font-semibold mb-4 text-red-500">Finalizar Viagem</h2>
@@ -495,9 +495,34 @@ const EditarViagem = () => {
             </div>
           </div>
         )}
+
+        {/* Modal de confirmação de exclusão */}
+        {modalExcluir.aberto && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div className="bg-neutral-800 p-8 rounded-lg shadow-2xl border border-red-700 max-w-sm w-full text-gray-100">
+              <h2 className="text-2xl font-semibold mb-4 text-red-500">Confirmar Exclusão</h2>
+              <p className="mb-6">Tem certeza que deseja excluir a viagem da placa <strong>{modalExcluir.placa}</strong>?</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  className="bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300"
+                  onClick={() => setModalExcluir({ aberto: false, id: null, placa: '' })}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="bg-red-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300"
+                  onClick={confirmarExcluir}
+                >
+                  Confirmar Exclusão
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
 
 export default EditarViagem;
