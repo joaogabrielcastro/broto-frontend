@@ -232,11 +232,12 @@ const EditarViagem = () => {
                 ))}
               </div>
             ) : (
-              !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
+              // REMOVIDO: !erro && <p className="text-center text-gray-400 mt-6">Nenhuma viagem ativa encontrada.</p>
+              // A mensagem agora é gerenciada apenas pelo estado 'mensagem'
+              null
             )}
           </>
         )}
-
 
         {edicao && (
           <div className="mt-8 p-8 bg-neutral-800 rounded-lg shadow-2xl border border-red-700 text-gray-100">
